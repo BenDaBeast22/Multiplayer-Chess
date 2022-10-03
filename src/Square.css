@@ -1,0 +1,39 @@
+td.square {
+  width: 70px;
+  height: 70px;
+  position: relative;
+}
+
+img.piece {
+  display: block;
+  margin: auto;
+  width: 100%;
+}
+
+td.dark {
+  background-color: rgb(102, 102, 236);
+}
+td.light {
+  background-color: rgba(114, 168, 230, 0.728);
+}
+td.selected {
+  /* background-color: green; */
+  box-shadow: inset 0px 0px 14px 200px rgba(78, 156, 52, 0.726);
+}
+
+td.legal {
+  box-shadow: inset 0px 0px 14px 200px rgba(170, 255, 0, 0.726);
+}
+
+td i {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(78, 156, 52, 0.726);
+}
+
+td i.legal {
+  display: inline;
+}
