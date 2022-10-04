@@ -1,3 +1,4 @@
+import {arrayEquals} from './Helpers';
 const BLACK = false;
 const WHITE = true;
 
@@ -96,6 +97,42 @@ class Piece {
     }
     return lMoves;  
   }
+  opposingSquaresCovered(board, turn) {
+    let squaresCovered = [];
+    // console.log(board);
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (board[r][c] instanceof Piece) {
+          const piece = board[r][c];
+          if (turn !== piece.type) {
+            piece.legalMoves(board, [r, c], piece).forEach(m => squaresCovered.push(m));
+          }
+        }
+      }
+    }
+    return squaresCovered;
+  }
+  kingUnderAttack(board, startPos, endPos, piece, kingPos) {
+    if (piece instanceof King) kingPos = endPos;
+    const [a, b] = startPos;
+    const [x, y] = endPos;
+    // const newBoard = board.map(o => o);
+    const endPiece = board[x][y];
+    board[a][b] = "-";
+    board[x][y] = piece;
+    // Check move doesn't allow king to be attacked
+    const sqrsCovered = this.opposingSquaresCovered(board, piece.type);
+    for (let move of sqrsCovered) {
+      if (arrayEquals(move, kingPos)) {
+        board[x][y] = endPiece;
+        board[a][b] = piece;
+        return true;
+      }
+    }
+    board[x][y] = endPiece;
+    board[a][b] = piece;
+    return false;
+  } 
 }
 
 class Pawn extends Piece {
@@ -139,6 +176,11 @@ class Pawn extends Piece {
     }
     return lMoves;
   }
+  allowedMoves(board, pawnPos, pawn, kingPos) {
+    const lMoves = this.legalMoves(board, pawnPos, pawn);
+    const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, pawnPos, m, pawn, kingPos));
+    return aMoves;
+  }
 }
 
 class Bishop extends Piece {
@@ -146,12 +188,17 @@ class Bishop extends Piece {
     super(type, img);
   }
   legalMoves(board, bishopPos, bishop) {
-    const lMoves = [];
+    let lMoves = [];
     this.diagonalLegalMoves(board, bishopPos, bishop, 1, 1).forEach(m => lMoves.push(m)); // Up right
     this.diagonalLegalMoves(board, bishopPos, bishop, 1, -1).forEach(m => lMoves.push(m)); // Up left
     this.diagonalLegalMoves(board, bishopPos, bishop, -1, 1).forEach(m => lMoves.push(m)); // Down right
     this.diagonalLegalMoves(board, bishopPos, bishop, -1, -1).forEach(m => lMoves.push(m)); // Down left
     return lMoves;
+  }
+  allowedMoves(board, bishopPos, bishop, kingPos) {
+    const lMoves = this.legalMoves(board, bishopPos, bishop);
+    const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, bishopPos, m, bishop, kingPos));
+    return aMoves;
   }
 }
 
@@ -166,6 +213,11 @@ class Rook extends Piece {
     this.horizantalLegalMoves(board, rookPos, rook, 1).forEach(m => lMoves.push(m)); // Right
     this.horizantalLegalMoves(board, rookPos, rook, -1).forEach(m => lMoves.push(m)); // Left
     return lMoves;
+  }
+  allowedMoves(board, rookPos, rook, kingPos) {
+    const lMoves = this.legalMoves(board, rookPos, rook);
+    const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, rookPos, m, rook, kingPos));
+    return aMoves;
   }
 }
 
@@ -184,6 +236,11 @@ class Queen extends Piece {
     this.diagonalLegalMoves(board, queenPos, queen, -1, 1).forEach(m => lMoves.push(m)); // Down right
     this.diagonalLegalMoves(board, queenPos, queen, -1, -1).forEach(m => lMoves.push(m)); // Down left
     return lMoves;
+  }
+  allowedMoves(board, queenPos, queen, kingPos) {
+    const lMoves = this.legalMoves(board, queenPos, queen);
+    const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, queenPos, m, queen, kingPos));
+    return aMoves;
   }
 }
 
@@ -207,6 +264,11 @@ class Knight extends Piece {
     }
     return lMoves;  
   }
+  allowedMoves(board, knightPos, knight, kingPos) {
+    const lMoves = this.legalMoves(board, knightPos, knight);
+    const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, knightPos, m, knight, kingPos));
+    return aMoves;
+  }
 }
 
 class King extends Piece {
@@ -222,6 +284,11 @@ class King extends Piece {
     ];
     this.arrayLegalMoves(board, kingPos, king, moves).forEach(m => lMoves.push(m));
     return lMoves;
+  }
+  allowedMoves(board, piecePos, king) {
+    const lMoves = this.legalMoves(board, piecePos, king);
+    const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, piecePos, m, king));
+    return aMoves;
   }
 }
 

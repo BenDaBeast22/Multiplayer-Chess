@@ -21,7 +21,11 @@ class Board extends React.Component {
       board: this.setupBoard(),
       selectedPiece: false,
       turn: WHITE,
-      legalMoves: []
+      legalMoves: [],
+      kingPos: [[0, 4], [7, 4]],
+      inCheck: false,
+      checkmate: false,
+      winner: false
     }
     this.resetBoard = this.resetBoard.bind(this);
   }
@@ -34,15 +38,20 @@ class Board extends React.Component {
         return;
       } 
       const [or, oc] = this.state.selectedPiece;
-      const newBoard = Game.move(this.state.board, this.state.selectedPiece, pos, this.state.board[or][oc]);
-
+      const pieceFrom = this.state.board[or][oc];
+      const [newBoard, kingPos, inCheck, checkmate] = Game.move(this.state.board, this.state.selectedPiece, pos, pieceFrom, this.state.kingPos, this.state.inCheck);
+      if (checkmate) {
+        this.setState({winner: pieceFrom.type, checkmate: true});
+        return;
+      }
       if (newBoard){
-        this.setState({board: newBoard, selectedPiece: false, turn: !this.state.turn, legalMoves: []});
+        this.setState({board: newBoard, selectedPiece: false, turn: !this.state.turn, legalMoves: [], kingPos: kingPos, inCheck: inCheck, checkmate: checkmate});
       } 
       return;
     }
     const selectedPiece = this.state.board[r][c];
-    this.state.legalMoves = selectedPiece.legalMoves(this.state.board, pos, selectedPiece);
+    const kIdx = selectedPiece.type? 0 : 1;
+    this.state.legalMoves = selectedPiece.allowedMoves(this.state.board, pos, selectedPiece, this.state.kingPos[kIdx]);
     if(selectedPiece instanceof Piece && selectedPiece.type === this.state.turn){
       this.setState({selectedPiece: pos});
     }
@@ -86,11 +95,12 @@ class Board extends React.Component {
   }
 
   resetBoard(){
-    this.setState({board: this.setupBoard(), selectedPiece: false, turn: WHITE})
+    this.setState({board: this.setupBoard(), selectedPiece: false, turn: WHITE, legalMoves: [], kingPos: [[0, 4], [7, 4]], inCheck: false, checkmate: false})
     Game = new ChessGame();
   }
   render(){
     // Render Chess Board
+    let winMessage = <div>{this.state.winner? "White Wins!!!" : "Black Wins!!!"}</div>
     let board = [];
     let cOdd = true;
     let rOdd = true;
@@ -108,15 +118,14 @@ class Board extends React.Component {
         cOdd = !cOdd;
       }
       board.push(<tr key={i}>{row}</tr>)   
-      rOdd = !rOdd;
-      
-      // Render Chess Pieces
+      rOdd = !rOdd;  
     }
+    // Render Chess Pieces
     return (
       <div className="Board">
         <table className="Table">
           <tbody>
-            {board}
+            {this.state.checkmate? winMessage : board}
           </tbody>
         </table>
         <button onClick={this.resetBoard}className="Reset">Reset</button>
