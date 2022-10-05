@@ -1,5 +1,5 @@
 import { arrayEquals } from './Helpers';
-import { King, Piece } from './Pieces';
+import { King, Rook, Piece } from './Pieces';
 
 const BLACK = false;
 const WHITE = true;
@@ -40,22 +40,49 @@ class ChessGame {
     return squaresCovered;
   }
   isCheckmate(board, startPos, piece, kingOppPos){
-    const [a, b] = startPos;
-    const oppSquaresCovered = this.squaresCovered(board, !piece.type);
-    const squaresCovered = this.squaresCovered(board, piece.type);
-    // Check every move you can to see if opponent can get out of check
-    for (let move of oppSquaresCovered) {
-      const [x, y] = move;
-      board[a][b] = "-";
-      const moveSquare = board[x][y]; 
-      board[x][y] = piece;
-      // If you cant get out of check and every square is covered it's Checkmate!
-      for (let square in squaresCovered) {
-        if (arrayEquals(square, kingOppPos)) {
-          return false;
+    // Check every move you can to see if opponent can get out of check 
+    const kingOppStartPos = kingOppPos;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const oppStartPos = board[r][c];
+        if (oppStartPos instanceof Piece && oppStartPos.type !== piece.type) {
+          let lMoves;
+          // Need to check allowed moves for king since piece that king cannot take could be putting him in check
+          if (oppStartPos instanceof King) lMoves = oppStartPos.allowedMoves(board, [r, c], board[r][c], kingOppPos, false);
+          else lMoves = oppStartPos.legalMoves(board, [r, c], board[r][c]);
+          console.log("Piece lmoves");
+          console.log(`r = ${r}, c = ${c}`);
+          console.log(oppStartPos.imgName);
+          console.log(lMoves);
+          for (let move of lMoves) {
+            const [x, y] = move;
+            let originalPos = board[r][c];
+            let moveSquare = board[x][y]; 
+            board[r][c] = "-";
+            board[x][y] = oppStartPos;
+            if (oppStartPos instanceof King) kingOppPos = [x, y];
+            const squaresCovered = this.squaresCovered(board, piece.type);
+            // if (board[r][c].img === "b_k") {
+            //   console.log("squaresCovered");
+            //   console.log(squaresCovered)
+            //   console.log("kingPos");
+            //   console.log(kingOppPos);
+            // }
+            if (!squaresCovered.some(s => arrayEquals(s, kingOppPos))) {
+              board[r][c] = originalPos;
+              board[x][y] = moveSquare;
+              // console.log("squaresCovered");
+              // console.log(squaresCovered);
+              // console.log("kingOppPos");
+              // console.log(kingOppPos);
+              if (oppStartPos instanceof King) kingOppPos = kingOppStartPos;
+              return false;
+            }
+            board[x][y] = moveSquare;
+            board[r][c] = originalPos;
+          }
         }
       }
-      board[x][y] = moveSquare;
     }
     return true;
   }
@@ -63,7 +90,6 @@ class ChessGame {
     if (piece instanceof King) kingPos = endPos;
     const [a, b] = startPos;
     const [x, y] = endPos;
-    // const newBoard = board.map(o => o);
     const endPiece = board[x][y];
     board[a][b] = "-";
     board[x][y] = piece;
@@ -80,29 +106,51 @@ class ChessGame {
     board[a][b] = piece;
     return false;
   } 
-  move(board, startPos, endPos, piece, kingPos, putInCheck) {
+  move(board, startPos, endPos, piece, kingPos, putInCheck, castleCheck) {
     const [a, b] = startPos;
-    const [x, y] = endPos;
+    let [x, y] = endPos;
     let inCheck = false;
     let checkmate = false;
     const kIdx = piece.type? 0 : 1;
     const kOppIdx = kIdx? 0: 1;
-    const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx]);
+    const cIdx = piece.type? 0 : 1;
+    const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx], castleCheck[cIdx]);
     if (this.isLegalMove(legalMoves, endPos)) {
+      // If moving piece is king adjust kingPos and castle rights set to false
       if (piece instanceof King) {
-        kingPos[kIdx] = endPos;
+        const kColDiff = y - b;
+        const rIdx = piece.type? 0: 7;
+        // Right Castles
+        if (!putInCheck && kColDiff === 2) {
+          kingPos[kIdx] = endPos;
+          board[rIdx][5] = board[rIdx][7];
+          board[rIdx][7] = "-";
+        }
+        // Left Castles
+        else if(!putInCheck && kColDiff === -2 || kColDiff === -3) {
+          kingPos[kIdx] = [rIdx, 2];
+          y = 2;
+          board[rIdx][3] = board[rIdx][0];
+          board[rIdx][0] = "-";
+        } else {
+          kingPos[kIdx] = endPos;
+          castleCheck[cIdx][1] = false;
+        }
+      }
+      else if (piece instanceof Rook) {
+        if (a === 0) castleCheck[cIdx][0] = false;
+        else if (a === 7) castleCheck[cIdx][2] = false;
       }
       board[a][b] = "-";
       board[x][y] = piece;
       // Sets check in state if put opponent in check
       const inCheck = this.checkedOpponent(board, piece.type, kingPos[kOppIdx]);
-      if (inCheck) {
-        checkmate = this.isCheckmate(board, startPos, piece, kingPos[kOppIdx]);
-        return [false, kingPos, true, true];
+      if (inCheck && this.isCheckmate(board, startPos, piece, kingPos[kOppIdx])) {
+        return [false, kingPos, true, true, false];
       }
-      return [board, kingPos, inCheck, checkmate];
+      return [board, kingPos, inCheck, checkmate, castleCheck];
     }
-    return [false, kingPos, inCheck, checkmate];
+    return [false, kingPos, inCheck, checkmate, castleCheck];
   }
 }
 

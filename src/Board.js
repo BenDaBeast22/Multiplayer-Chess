@@ -25,7 +25,8 @@ class Board extends React.Component {
       kingPos: [[0, 4], [7, 4]],
       inCheck: false,
       checkmate: false,
-      winner: false
+      winner: false,
+      castleCheck: [[true, true, true], [true, true, true]]
     }
     this.resetBoard = this.resetBoard.bind(this);
   }
@@ -39,22 +40,22 @@ class Board extends React.Component {
       } 
       const [or, oc] = this.state.selectedPiece;
       const pieceFrom = this.state.board[or][oc];
-      const [newBoard, kingPos, inCheck, checkmate] = Game.move(this.state.board, this.state.selectedPiece, pos, pieceFrom, this.state.kingPos, this.state.inCheck);
+      const [newBoard, kingPos, inCheck, checkmate, castleCheck] = Game.move(this.state.board, this.state.selectedPiece, pos, pieceFrom, this.state.kingPos, this.state.inCheck, this.state.castleCheck);
       if (checkmate) {
-        this.setState({winner: pieceFrom.type, checkmate: true});
+        this.setState({winner: pieceFrom.type, checkmate: true, inCheck: true, turn: !this.state.turn});
         return;
       }
       if (newBoard){
-        this.setState({board: newBoard, selectedPiece: false, turn: !this.state.turn, legalMoves: [], kingPos: kingPos, inCheck: inCheck, checkmate: checkmate});
+        this.setState({board: newBoard, selectedPiece: false, turn: !this.state.turn, legalMoves: [], kingPos: kingPos, inCheck: inCheck, checkmate: checkmate, castleCheck: castleCheck});
       } 
       return;
     }
     const selectedPiece = this.state.board[r][c];
+    if (!selectedPiece instanceof Piece || selectedPiece.type !== this.state.turn) return;
     const kIdx = selectedPiece.type? 0 : 1;
-    this.state.legalMoves = selectedPiece.allowedMoves(this.state.board, pos, selectedPiece, this.state.kingPos[kIdx]);
-    if(selectedPiece instanceof Piece && selectedPiece.type === this.state.turn){
-      this.setState({selectedPiece: pos});
-    }
+    const cIdx = selectedPiece.type? 0 : 1;
+    this.state.legalMoves = selectedPiece.allowedMoves(this.state.board, pos, selectedPiece, this.state.kingPos[kIdx], this.state.castleCheck[cIdx]);
+    this.setState({selectedPiece: pos});
   }
 
   setupBoard() {
@@ -95,7 +96,17 @@ class Board extends React.Component {
   }
 
   resetBoard(){
-    this.setState({board: this.setupBoard(), selectedPiece: false, turn: WHITE, legalMoves: [], kingPos: [[0, 4], [7, 4]], inCheck: false, checkmate: false})
+    this.setState({
+      board: this.setupBoard(), 
+      selectedPiece: false, 
+      turn: WHITE, 
+      legalMoves: [], 
+      kingPos: [[0, 4], [7, 4]], 
+      inCheck: false, 
+      checkmate: false,
+      winner: false,
+      castleCheck: [[true, true, true], [true, true, true]]
+    });
     Game = new ChessGame();
   }
   render(){
@@ -112,9 +123,11 @@ class Board extends React.Component {
         const isDark = cOdd? true: false;
         const piece = this.state.board[i][j];
         const pos = [i, j];
-        const isSelected = arrayEquals(pos, this.state.selectedPiece);
-        const isLegalMove = this.state.legalMoves.some(lm => arrayEquals(lm, pos)? true : false);
-        row.push(<Square key={sqr} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([i,j])} isSelected={isSelected} isLegal={isLegalMove}/>)
+        const isSelected = arrayEquals(pos, this.state.selectedPiece) && !this.state.checkmate;
+        const isLegalMove = this.state.legalMoves.some(lm => arrayEquals(lm, pos)? true : false) && !this.state.checkmate;
+        const isCheckmate = this.state.checkmate;
+        const inCheck = piece instanceof King && this.state.inCheck && (this.state.turn === piece.type);
+        row.push(<Square key={sqr} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([i,j])} isSelected={isSelected} isLegal={isLegalMove} inCheck={inCheck} isCheckmate={isCheckmate}/>)
         cOdd = !cOdd;
       }
       board.push(<tr key={i}>{row}</tr>)   
@@ -125,7 +138,7 @@ class Board extends React.Component {
       <div className="Board">
         <table className="Table">
           <tbody>
-            {this.state.checkmate? winMessage : board}
+            {board}
           </tbody>
         </table>
         <button onClick={this.resetBoard}className="Reset">Reset</button>

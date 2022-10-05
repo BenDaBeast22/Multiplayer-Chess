@@ -148,7 +148,7 @@ class Pawn extends Piece {
     if (pawn.type === WHITE) {
       upOne = [rStart + 1, cStart];
       // Add up two legal move
-      if(rStart === 1) {
+      if(rStart === 1 && this.emptySquare(board[rStart + 2][cStart])) {
         lMoves.push([rStart + 2, cStart]);
       }
       upOneRight = [rStart + 1, cStart + 1];
@@ -157,7 +157,7 @@ class Pawn extends Piece {
     else {
       upOne = [rStart - 1, cStart];
       // Add up two legal move
-      if(rStart === 6) {
+      if(rStart === 6 && this.emptySquare(board[rStart - 2][cStart])) {
         lMoves.push([rStart - 2, cStart]);
       }
       upOneRight = [rStart - 1, cStart + 1];
@@ -275,6 +275,23 @@ class King extends Piece {
   constructor(type, img){
     super(type, img);
   }
+  castleMoves(board, kingPos, castleCheck, king) {
+    console.log("castleCheck")
+    console.log(castleCheck);
+    const cMoves = [];
+    const [r, c] = kingPos;
+    console.log("LOGGING CAIdgasdg")
+    console.log(castleCheck[2]);
+    if (castleCheck[1] && castleCheck[2])
+      if (!this.kingUnderAttack(board, kingPos, [r, c + 1], king)) cMoves.push([r, c + 2]); 
+    console.log("YeetMoves");
+    console.log(cMoves);
+    if (castleCheck[1] && castleCheck[0]) 
+      if (!this.kingUnderAttack(board, kingPos, [r, c - 1], king)) cMoves.push([r, c - 2], [r, c - 3]);
+    console.log("Cmoves");
+    console.log(cMoves);
+    return cMoves;
+  }
   legalMoves(board, kingPos, king) {
     let lMoves = [];
     const moves = [
@@ -285,8 +302,12 @@ class King extends Piece {
     this.arrayLegalMoves(board, kingPos, king, moves).forEach(m => lMoves.push(m));
     return lMoves;
   }
-  allowedMoves(board, piecePos, king) {
-    const lMoves = this.legalMoves(board, piecePos, king);
+  allowedMoves(board, piecePos, king, kingPos, castleCheck) {
+    let lMoves = this.legalMoves(board, piecePos, king);
+    if (castleCheck) this.castleMoves(board, piecePos, castleCheck, king).forEach(m => {
+      if (m)
+      lMoves.push(m)
+    });
     const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, piecePos, m, king));
     return aMoves;
   }

@@ -25,6 +25,10 @@ td.legal {
   box-shadow: inset 0px 0px 14px 200px rgba(170, 255, 0, 0.726);
 }
 
+td.inCheck {
+  box-shadow: inset 0px 0px 5px 5px rgba(229, 8, 8, 0.91);
+}
+
 td i {
   display: none;
   position: absolute;
@@ -37,3 +41,4 @@ td i {
 td i.legal {
   display: inline;
 }
+
