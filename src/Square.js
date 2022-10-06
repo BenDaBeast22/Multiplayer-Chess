@@ -8,14 +8,13 @@ class Square extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
   handleClick() {
-    if (this.props.isCheckmate) {
-      console.log("Checkmate");
+    if (this.props.isCheckmate || this.props.draw) {
       return;
     }
     this.props.selectPiece();
   }
   render(){
-    const classes = "square" + (this.props.isDark ? " dark" : " light") + (this.props.isSelected ? " selected": "" + (this.props.inCheck ? " inCheck": ""));
+    const classes = "square" + (this.props.isDark ? " dark" : " light") + (this.props.isSelected ? " selected": "" + (this.props.inCheck ? " inCheck": "") + (this.props.draw ? " draw" : ""));
     const {piece, isLegal} = this.props;
     return (
       <td onClick={this.handleClick} className={classes}>

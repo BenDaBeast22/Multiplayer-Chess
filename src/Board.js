@@ -26,27 +26,41 @@ class Board extends React.Component {
       inCheck: false,
       checkmate: false,
       winner: false,
-      castleCheck: [[true, true, true], [true, true, true]]
+      castleCheck:  [[true, true, true], [true, true, true]],
+      lastEnPassant: false,
+      draw: false
     }
     this.resetBoard = this.resetBoard.bind(this);
+  }
+  changeSelection(board, selectedPiece, newPos) {
+    const [r, c] = newPos;
+    const [or, oc] = selectedPiece;
+    if ((board[or][oc].type === board[r][c].type) && !(or === r && oc === c)) {
+      return true;
+    }
+    return false;
   }
 
   selectPiece(pos) {
     const [r, c] = pos;
-    if (this.state.selectedPiece) {
+    if (this.state.selectedPiece && !this.changeSelection(this.state.board, this.state.selectedPiece, pos)) {
       if (arrayEquals(pos, this.state.selectedPiece)){
         this.setState({selectedPiece: false, legalMoves: []})
         return;
       } 
       const [or, oc] = this.state.selectedPiece;
       const pieceFrom = this.state.board[or][oc];
-      const [newBoard, kingPos, inCheck, checkmate, castleCheck] = Game.move(this.state.board, this.state.selectedPiece, pos, pieceFrom, this.state.kingPos, this.state.inCheck, this.state.castleCheck);
+      const [newBoard, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw] = Game.move(this.state.board, this.state.selectedPiece, pos, pieceFrom, this.state.kingPos, this.state.inCheck, this.state.castleCheck, this.state.lastEnPassant, this.state.draw);
       if (checkmate) {
-        this.setState({winner: pieceFrom.type, checkmate: true, inCheck: true, turn: !this.state.turn});
+        this.setState({winner: pieceFrom.type, checkmate: true, inCheck: true, legalMoves: [], selectedPiece: false, turn: !this.state.turn});
+        return;
+      }
+      else if (draw) {
+        this.setState({draw: true, legalMoves: [], selectedPiece: false, turn: !this.state.turn});
         return;
       }
       if (newBoard){
-        this.setState({board: newBoard, selectedPiece: false, turn: !this.state.turn, legalMoves: [], kingPos: kingPos, inCheck: inCheck, checkmate: checkmate, castleCheck: castleCheck});
+        this.setState({board: newBoard, selectedPiece: false, turn: !this.state.turn, legalMoves: [], kingPos: kingPos, inCheck: inCheck, checkmate: checkmate, castleCheck: castleCheck, lastEnPassant: lastEnPassant, draw: draw});
       } 
       return;
     }
@@ -54,8 +68,8 @@ class Board extends React.Component {
     if (!selectedPiece instanceof Piece || selectedPiece.type !== this.state.turn) return;
     const kIdx = selectedPiece.type? 0 : 1;
     const cIdx = selectedPiece.type? 0 : 1;
-    this.state.legalMoves = selectedPiece.allowedMoves(this.state.board, pos, selectedPiece, this.state.kingPos[kIdx], this.state.castleCheck[cIdx]);
-    this.setState({selectedPiece: pos});
+    const lMoves = selectedPiece.allowedMoves(this.state.board, pos, selectedPiece, this.state.kingPos[kIdx], this.state.castleCheck[cIdx], this.state.lastEnPassant);
+    this.setState({selectedPiece: pos, legalMoves: lMoves});
   }
 
   setupBoard() {
@@ -105,7 +119,9 @@ class Board extends React.Component {
       inCheck: false, 
       checkmate: false,
       winner: false,
-      castleCheck: [[true, true, true], [true, true, true]]
+      castleCheck: [[true, true, true], [true, true, true]],
+      lastEnPassant: false, 
+      draw: false
     });
     Game = new ChessGame();
   }
@@ -123,11 +139,12 @@ class Board extends React.Component {
         const isDark = cOdd? true: false;
         const piece = this.state.board[i][j];
         const pos = [i, j];
-        const isSelected = arrayEquals(pos, this.state.selectedPiece) && !this.state.checkmate;
-        const isLegalMove = this.state.legalMoves.some(lm => arrayEquals(lm, pos)? true : false) && !this.state.checkmate;
+        const isSelected = arrayEquals(pos, this.state.selectedPiece);
+        const isLegalMove = this.state.legalMoves.some(lm => arrayEquals(lm, pos)? true : false);
         const isCheckmate = this.state.checkmate;
+        const draw = this.state.draw && piece instanceof King && (this.state.turn === piece.type);
         const inCheck = piece instanceof King && this.state.inCheck && (this.state.turn === piece.type);
-        row.push(<Square key={sqr} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([i,j])} isSelected={isSelected} isLegal={isLegalMove} inCheck={inCheck} isCheckmate={isCheckmate}/>)
+        row.push(<Square key={sqr} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([i,j])} isSelected={isSelected} isLegal={isLegalMove} inCheck={inCheck} isCheckmate={isCheckmate} draw={draw}/>)
         cOdd = !cOdd;
       }
       board.push(<tr key={i}>{row}</tr>)   

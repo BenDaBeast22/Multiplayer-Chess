@@ -132,6 +132,9 @@ class Piece {
     board[x][y] = endPiece;
     board[a][b] = piece;
     return false;
+  }
+  enPassant(sqr, lastEnPassant) {
+    return arrayEquals(sqr, lastEnPassant);
   } 
 }
 
@@ -139,13 +142,17 @@ class Pawn extends Piece {
   constructor(type, img){
     super(type, img);
   }
-  legalMoves(board, pawnPos, pawn) {
+  legalMoves(board, pawnPos, pawn, lastEnPassant) {
+    // console.log("En passant");
+    // console.log(lastEnPassant);
     let lMoves = [];
     const [rStart, cStart] = pawnPos;
     let upOne = [];
     let upOneRight = [];
     let upOneLeft = [];
+    let ecOff;
     if (pawn.type === WHITE) {
+      ecOff = 1;
       upOne = [rStart + 1, cStart];
       // Add up two legal move
       if(rStart === 1 && this.emptySquare(board[rStart + 2][cStart])) {
@@ -155,6 +162,7 @@ class Pawn extends Piece {
       upOneLeft = [rStart + 1, cStart - 1];
     } 
     else {
+      ecOff = -1;
       upOne = [rStart - 1, cStart];
       // Add up two legal move
       if(rStart === 6 && this.emptySquare(board[rStart - 2][cStart])) {
@@ -173,11 +181,14 @@ class Pawn extends Piece {
       if (this.isPiece(board[rd][rc]) && this.isOppositePiece(board[rd][rc], pawn)) {
         lMoves.push([rd, rc])
       }
+      if (this.enPassant([rd, rc], lastEnPassant)) {
+        lMoves.push([rd, rc]);
+      }
     }
     return lMoves;
   }
-  allowedMoves(board, pawnPos, pawn, kingPos) {
-    const lMoves = this.legalMoves(board, pawnPos, pawn);
+  allowedMoves(board, pawnPos, pawn, kingPos, castleCheck, lastEnPassant) {
+    const lMoves = this.legalMoves(board, pawnPos, pawn, lastEnPassant);
     const aMoves = lMoves.filter(m => !this.kingUnderAttack(board, pawnPos, m, pawn, kingPos));
     return aMoves;
   }
@@ -276,20 +287,14 @@ class King extends Piece {
     super(type, img);
   }
   castleMoves(board, kingPos, castleCheck, king) {
-    console.log("castleCheck")
-    console.log(castleCheck);
     const cMoves = [];
     const [r, c] = kingPos;
-    console.log("LOGGING CAIdgasdg")
-    console.log(castleCheck[2]);
-    if (castleCheck[1] && castleCheck[2])
+    if (castleCheck[1] && castleCheck[2]) {
       if (!this.kingUnderAttack(board, kingPos, [r, c + 1], king)) cMoves.push([r, c + 2]); 
-    console.log("YeetMoves");
-    console.log(cMoves);
-    if (castleCheck[1] && castleCheck[0]) 
+    }
+    if (castleCheck[1] && castleCheck[0]) {
       if (!this.kingUnderAttack(board, kingPos, [r, c - 1], king)) cMoves.push([r, c - 2], [r, c - 3]);
-    console.log("Cmoves");
-    console.log(cMoves);
+    }
     return cMoves;
   }
   legalMoves(board, kingPos, king) {

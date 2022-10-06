@@ -1,5 +1,5 @@
 import { arrayEquals } from './Helpers';
-import { King, Rook, Piece } from './Pieces';
+import { King, Rook, Pawn, Piece } from './Pieces';
 
 const BLACK = false;
 const WHITE = true;
@@ -48,12 +48,12 @@ class ChessGame {
         if (oppStartPos instanceof Piece && oppStartPos.type !== piece.type) {
           let lMoves;
           // Need to check allowed moves for king since piece that king cannot take could be putting him in check
-          if (oppStartPos instanceof King) lMoves = oppStartPos.allowedMoves(board, [r, c], board[r][c], kingOppPos, false);
+          if (oppStartPos instanceof King) lMoves = oppStartPos.allowedMoves(board, [r, c], board[r][c], kingOppPos);
           else lMoves = oppStartPos.legalMoves(board, [r, c], board[r][c]);
-          console.log("Piece lmoves");
-          console.log(`r = ${r}, c = ${c}`);
-          console.log(oppStartPos.imgName);
-          console.log(lMoves);
+          // console.log("Piece lmoves");
+          // console.log(`r = ${r}, c = ${c}`);
+          // console.log(oppStartPos.imgName);
+          // console.log(lMoves);
           for (let move of lMoves) {
             const [x, y] = move;
             let originalPos = board[r][c];
@@ -106,15 +106,33 @@ class ChessGame {
     board[a][b] = piece;
     return false;
   } 
-  move(board, startPos, endPos, piece, kingPos, putInCheck, castleCheck) {
+  draw (board, piece, kingOppPos, castleCheck, lastEnPassant) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const oppPiece = board[r][c];
+        const cIdx = piece.type? 0 : 1;
+        if (oppPiece instanceof Piece && oppPiece.type !== piece.type) {
+          const lMoves = oppPiece.allowedMoves(board, [r, c], oppPiece, kingOppPos, castleCheck[cIdx], lastEnPassant);
+          if (lMoves.length > 0) {
+            console.log("Lmoves");
+            console.log(lMoves);
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+  move(board, startPos, endPos, piece, kingPos, putInCheck, castleCheck, lastEnPassant, draw) {
     const [a, b] = startPos;
     let [x, y] = endPos;
     let inCheck = false;
     let checkmate = false;
+    let enPassantSet = false;
     const kIdx = piece.type? 0 : 1;
     const kOppIdx = kIdx? 0: 1;
     const cIdx = piece.type? 0 : 1;
-    const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx], castleCheck[cIdx]);
+    const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx], castleCheck[cIdx], lastEnPassant);
     if (this.isLegalMove(legalMoves, endPos)) {
       // If moving piece is king adjust kingPos and castle rights set to false
       if (piece instanceof King) {
@@ -141,16 +159,39 @@ class ChessGame {
         if (a === 0) castleCheck[cIdx][0] = false;
         else if (a === 7) castleCheck[cIdx][2] = false;
       }
+      else if (piece instanceof Pawn) {
+        // Check if possible enPassant (Pawn moved up 2)
+        if ((a == 1 && x == 3) || (a == 6 && x == 4)) {
+          const backOne = piece.type? -1 : 1;
+          lastEnPassant = [x + backOne, y];
+          enPassantSet = true;
+        }
+        if (arrayEquals(endPos, lastEnPassant)){
+          const er = piece.type? x - 1 : x + 1;
+          board[er][y] = "-";
+        }
+      }
+      if (!enPassantSet) lastEnPassant = false;
       board[a][b] = "-";
       board[x][y] = piece;
       // Sets check in state if put opponent in check
       const inCheck = this.checkedOpponent(board, piece.type, kingPos[kOppIdx]);
       if (inCheck && this.isCheckmate(board, startPos, piece, kingPos[kOppIdx])) {
-        return [false, kingPos, true, true, false];
+        return [false, kingPos, true, true, false, lastEnPassant, draw];
       }
-      return [board, kingPos, inCheck, checkmate, castleCheck];
+      const[kr, kc] = kingPos[kOppIdx];
+      const oppKing = board[kr][kc];
+      console.log(oppKing.allowedMoves(board, [kr, kc], oppKing, kingPos[kOppIdx], castleCheck[cIdx]));
+      if (oppKing.allowedMoves(board, [kr, kc], oppKing, kingPos[kOppIdx], castleCheck[cIdx]).length === 0) {
+        console.log("Draw Check")
+        if (this.draw(board, piece, kingPos[kOppIdx], castleCheck, lastEnPassant)) {
+          draw = true;
+          return [false, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw]
+        }
+      }
+      return [board, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw];
     }
-    return [false, kingPos, inCheck, checkmate, castleCheck];
+    return [false, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw];
   }
 }
 

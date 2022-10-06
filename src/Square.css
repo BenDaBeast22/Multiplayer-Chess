@@ -29,6 +29,10 @@ td.inCheck {
   box-shadow: inset 0px 0px 5px 5px rgba(229, 8, 8, 0.91);
 }
 
+td.draw {
+  box-shadow: inset 0px 0px 5px 5px rgba(245, 221, 3, 0.907);
+}
+
 td i {
   display: none;
   position: absolute;
