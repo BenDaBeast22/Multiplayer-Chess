@@ -142,8 +142,6 @@ class Pawn extends Piece {
     super(type, img);
   }
   legalMoves(board, pawnPos, pawn, lastEnPassant) {
-    // console.log("En passant");
-    // console.log(lastEnPassant);
     let lMoves = [];
     const [rStart, cStart] = pawnPos;
     let upOne = [];

@@ -31,6 +31,7 @@ class Board extends React.Component {
       draw: false
     }
     this.resetBoard = this.resetBoard.bind(this);
+    this.dropMove = this.dropMove.bind(this);
   }
   // Checks to see if another piece is selected
   changeSelection(board, selectedPiece, newPos) {
@@ -86,6 +87,10 @@ class Board extends React.Component {
     const lMoves = selectedPiece.allowedMoves(board, selectedPiecePos, selectedPiece, kingPos[kIdx], castleCheck[cIdx], lastEnPassant);
     this.setState({lastSelectedPiecePos: selectedPiecePos, legalMoves: lMoves});
   }
+  dropMove(selectedPiece, movedSqr) {
+    this.setState({pos: selectedPiece});
+    this.selectPiece(movedSqr);
+  }
   // Resets chessboard state
   resetBoard(){
     this.setState({
@@ -122,7 +127,7 @@ class Board extends React.Component {
         const isLegalMove = legalMoves.some(lm => arrayEquals(lm, pos)? true : false);
         const isDraw = draw && piece instanceof King && (turn === piece.type);
         const kingInCheck = piece instanceof King && inCheck && (turn === piece.type);
-        row.push(<Square key={sqr} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw}/>)
+        row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove}/>)
         cOdd = !cOdd;
       }
       chessBoard.push(<tr key={r + 1}>{row}</tr>)   
