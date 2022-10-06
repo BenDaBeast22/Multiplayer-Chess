@@ -39,7 +39,7 @@ class ChessGame {
     }
     return squaresCovered;
   }
-  isCheckmate(board, startPos, piece, kingOppPos){
+  isCheckmate(board, piece, kingOppPos){
     // Check every move you can to see if opponent can get out of check 
     const kingOppStartPos = kingOppPos;
     for (let r = 0; r < 8; r++) {
@@ -114,8 +114,6 @@ class ChessGame {
         if (oppPiece instanceof Piece && oppPiece.type !== piece.type) {
           const lMoves = oppPiece.allowedMoves(board, [r, c], oppPiece, kingOppPos, castleCheck[cIdx], lastEnPassant);
           if (lMoves.length > 0) {
-            console.log("Lmoves");
-            console.log(lMoves);
             return false;
           }
         }
@@ -132,7 +130,17 @@ class ChessGame {
     const kIdx = piece.type? 0 : 1;
     const kOppIdx = kIdx? 0: 1;
     const cIdx = piece.type? 0 : 1;
-    const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx], castleCheck[cIdx], lastEnPassant);
+    // return [board, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw]
+    const retBoard = {
+      board: board,
+      kingPos: kingPos,
+      inCheck: inCheck,
+      checkmate: checkmate,
+      castleCheck: castleCheck,
+      lastEnPassant: lastEnPassant,
+      draw: draw
+    }
+    const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx], castleCheck[cIdx], retBoard.lastEnPassant);
     if (this.isLegalMove(legalMoves, endPos)) {
       // If moving piece is king adjust kingPos and castle rights set to false
       if (piece instanceof King) {
@@ -145,7 +153,7 @@ class ChessGame {
           board[rIdx][7] = "-";
         }
         // Left Castles
-        else if(!putInCheck && kColDiff === -2 || kColDiff === -3) {
+        else if(!putInCheck && (kColDiff === -2 || kColDiff === -3)) {
           kingPos[kIdx] = [rIdx, 2];
           y = 2;
           board[rIdx][3] = board[rIdx][0];
@@ -161,37 +169,43 @@ class ChessGame {
       }
       else if (piece instanceof Pawn) {
         // Check if possible enPassant (Pawn moved up 2)
-        if ((a == 1 && x == 3) || (a == 6 && x == 4)) {
+        if ((a === 1 && x === 3) || (a === 6 && x === 4)) {
           const backOne = piece.type? -1 : 1;
-          lastEnPassant = [x + backOne, y];
+          retBoard.lastEnPassant = [x + backOne, y];
           enPassantSet = true;
         }
-        if (arrayEquals(endPos, lastEnPassant)){
+        if (arrayEquals(endPos, retBoard.lastEnPassant)){
           const er = piece.type? x - 1 : x + 1;
           board[er][y] = "-";
         }
       }
-      if (!enPassantSet) lastEnPassant = false;
+      if (!enPassantSet) retBoard.lastEnPassant = false;
       board[a][b] = "-";
       board[x][y] = piece;
       // Sets check in state if put opponent in check
       const inCheck = this.checkedOpponent(board, piece.type, kingPos[kOppIdx]);
-      if (inCheck && this.isCheckmate(board, startPos, piece, kingPos[kOppIdx])) {
-        return [false, kingPos, true, true, false, lastEnPassant, draw];
+      // Returns checkmate if opponent in check and can't get out of check
+      if (inCheck && this.isCheckmate(board, piece, kingPos[kOppIdx])) {
+        retBoard.inCheck = true;
+        retBoard.checkmate = true;
+        return retBoard;
       }
       const[kr, kc] = kingPos[kOppIdx];
       const oppKing = board[kr][kc];
-      console.log(oppKing.allowedMoves(board, [kr, kc], oppKing, kingPos[kOppIdx], castleCheck[cIdx]));
+      // Returns draw if other player has no moves they can make
       if (oppKing.allowedMoves(board, [kr, kc], oppKing, kingPos[kOppIdx], castleCheck[cIdx]).length === 0) {
-        console.log("Draw Check")
         if (this.draw(board, piece, kingPos[kOppIdx], castleCheck, lastEnPassant)) {
-          draw = true;
-          return [false, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw]
+          retBoard.draw = true;
+          return retBoard;
         }
       }
-      return [board, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw];
+      retBoard.inCheck = inCheck;
+      // retBoard.kingPos = kingPos;
+      // retBoard.lastEnPassant = lastEnPassant;
+      return retBoard;
     }
-    return [false, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw];
+    retBoard.board = false;
+    return retBoard;
   }
 }
 

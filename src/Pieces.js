@@ -4,13 +4,12 @@ const WHITE = true;
 
 // Abstract Class
 class Piece {
-  constructor(type, img, pos){
+  constructor(type, img){
     if(this.constructor === Piece){
       throw new Error('Class "Piece" cannot be instantiated');
     }
     this.type = type;
     this.imgName = img;
-    this.pos = pos;
   }
   // True if row and column are on the board (8x8)
   onBoard(r, c){
