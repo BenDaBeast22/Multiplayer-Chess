@@ -170,12 +170,12 @@ class Pawn extends Piece {
     }
     // Add up one legal move
     const [uor, uoc] = upOne;
-    if (this.emptySquare(board[uor][uoc])) lMoves.push(upOne);
+    if (this.onBoard(uor, uoc) && this.emptySquare(board[uor][uoc])) lMoves.push(upOne);
     // Add diagonal legal moves
     const diagonal = [upOneRight, upOneLeft];
     for (let move of diagonal) {
       const [rd, rc] = move;
-      if (this.isPiece(board[rd][rc]) && this.isOppositePiece(board[rd][rc], pawn)) {
+      if (this.onBoard(rd, rc) && this.isPiece(board[rd][rc]) && this.isOppositePiece(board[rd][rc], pawn)) {
         lMoves.push([rd, rc])
       }
       if (this.enPassant([rd, rc], lastEnPassant)) {

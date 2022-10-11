@@ -50,10 +50,6 @@ class ChessGame {
           // Need to check allowed moves for king since piece that king cannot take could be putting him in check
           if (oppStartPos instanceof King) lMoves = oppStartPos.allowedMoves(board, [r, c], board[r][c], kingOppPos);
           else lMoves = oppStartPos.legalMoves(board, [r, c], board[r][c]);
-          // console.log("Piece lmoves");
-          // console.log(`r = ${r}, c = ${c}`);
-          // console.log(oppStartPos.imgName);
-          // console.log(lMoves);
           for (let move of lMoves) {
             const [x, y] = move;
             let originalPos = board[r][c];
@@ -62,19 +58,9 @@ class ChessGame {
             board[x][y] = oppStartPos;
             if (oppStartPos instanceof King) kingOppPos = [x, y];
             const squaresCovered = this.squaresCovered(board, piece.type);
-            // if (board[r][c].img === "b_k") {
-            //   console.log("squaresCovered");
-            //   console.log(squaresCovered)
-            //   console.log("kingPos");
-            //   console.log(kingOppPos);
-            // }
             if (!squaresCovered.some(s => arrayEquals(s, kingOppPos))) {
               board[r][c] = originalPos;
               board[x][y] = moveSquare;
-              // console.log("squaresCovered");
-              // console.log(squaresCovered);
-              // console.log("kingOppPos");
-              // console.log(kingOppPos);
               if (oppStartPos instanceof King) kingOppPos = kingOppStartPos;
               return false;
             }
@@ -133,6 +119,7 @@ class ChessGame {
     // return [board, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw]
     const retBoard = {
       board: board,
+      lastSelectedPiecePos: false,
       kingPos: kingPos,
       inCheck: inCheck,
       checkmate: checkmate,
@@ -168,16 +155,24 @@ class ChessGame {
         else if (a === 7) castleCheck[cIdx][2] = false;
       }
       else if (piece instanceof Pawn) {
-        // Check if possible enPassant (Pawn moved up 2)
+        // Set the lastEnPassant 
         if ((a === 1 && x === 3) || (a === 6 && x === 4)) {
           const backOne = piece.type? -1 : 1;
           retBoard.lastEnPassant = [x + backOne, y];
           enPassantSet = true;
         }
+        // If lastEnPassant move occurs do it
         if (arrayEquals(endPos, retBoard.lastEnPassant)){
           const er = piece.type? x - 1 : x + 1;
           board[er][y] = "-";
         }
+        // If pawn reaches end of board promote pawn and trigger piece selector
+        if (x === 7 || x === 0) {
+          retBoard.promotePawn = endPos;
+          retBoard.lastSelectedPiecePos = startPos;
+          console.log(retBoard.promotePawn);
+        }
+        
       }
       if (!enPassantSet) retBoard.lastEnPassant = false;
       board[a][b] = "-";

@@ -11,6 +11,7 @@ class Square extends React.Component {
     this.handleDragOver = this.handleDragOver.bind(this);
     this.handleDrop = this.handleDrop.bind(this);
     this.handleDragLeave = this.handleDragLeave.bind(this);
+    this.handlePromote = this.handlePromote.bind(this);
   }
   handleClick() {
     if (this.props.isCheckmate || this.props.draw) {
@@ -22,7 +23,6 @@ class Square extends React.Component {
     console.log('dragStart', this.props.pos);
     e.dataTransfer.setData("pos", this.props.pos);
     e.dataTransfer.effectAllowed = "move";
-    console.log(e.dataTransfer);
     this.props.selectPiece();
     // e.transfer.setData("pos", this.props.pos);
   }
@@ -38,23 +38,35 @@ class Square extends React.Component {
     e.preventDefault();
     const selectedPiece = e.dataTransfer.getData("pos");
     const movedSqr = this.props.pos;
-    console.log("Pos: ", this.props.pos);
     this.props.dropMove(selectedPiece, movedSqr);
   }
+  handlePromote() {
+    const {promotePos, selectorSquare, selectPromote} = this.props;
+    selectPromote(promotePos, selectorSquare);
+  }
   render(){
-    const {piece, isLegal} = this.props;
+    const {piece, isLegal, selectorSquare} = this.props;
     const {dragOver} = this.state;
     const classes = "square" + (this.props.isDark ? " dark" : " light") + (this.props.isSelected ? " selected": "" + (this.props.inCheck ? " inCheck": "") + (this.props.draw ? " draw" : ""));
     const dragClasses = (dragOver && isLegal) ? " hover" : "";
     return (
-      <td onClick={this.handleClick} className={classes+dragClasses} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onDragLeave={this.handleDragLeave}>
+      <>
         {
-          piece !== '-'? 
-            <img className="piece" src={`./images/${piece.imgName}.png`} onDragStart={this.handleDragStart}/>
-          : 
-            <i className={`${isLegal && !dragOver? 'fa-solid fa-circle legal': ''}`}/>
+          !selectorSquare?
+            <td onClick={this.handleClick} className={classes+dragClasses} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onDragLeave={this.handleDragLeave}>
+            {
+              piece !== '-'? 
+                <img className="piece" src={`./images/${piece.imgName}.png`} onDragStart={this.handleDragStart}/>
+              : 
+                <i className={`${isLegal && !dragOver? 'fa-solid fa-circle legal': ''}`}/>
+            }
+            </td>
+          :
+          <td className="Selector" onClick={this.handlePromote}>
+            <img className="piece" src={`./images/${selectorSquare.imgName}.png`}/>
+          </td>
         }
-      </td>
+      </>
     );
   }
 }
