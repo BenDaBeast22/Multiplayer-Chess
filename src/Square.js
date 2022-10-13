@@ -23,13 +23,16 @@ class Square extends React.Component {
     // e.dataTransfer.setData("pos", this.props.pos);
     // e.dataTransfer.setData("piece", this.props.piece);
     e.dataTransfer.effectAllowed = "move";
+    if (this.props.isCheckmate || this.props.draw) {
+      return;
+    }
     if (!this.props.isSelected) this.props.selectPiece();
     // e.transfer.setData("pos", this.props.pos);
   }
   handleDragOver(e) {
     e.stopPropagation();
     e.preventDefault();
-    console.log(e);
+    console.log("drag over");
     this.setState({dragOver: true})
   }
   handleDragLeave(e) {
@@ -37,6 +40,10 @@ class Square extends React.Component {
   }
   handleDrop(e) {
     e.preventDefault();
+    console.log("Drop");
+    if (this.props.isCheckmate || this.props.draw) {
+      return;
+    }
     // const selectedPiece = e.dataTransfer.getData("pos");
     const movedSqr = this.props.pos;
     this.setState({dragOver: false});

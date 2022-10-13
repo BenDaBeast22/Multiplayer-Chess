@@ -286,10 +286,7 @@ class King extends Piece {
   castleMoves(board, kingPos, castleCheck, king) {
     const cMoves = [];
     const [r, c] = kingPos;
-    console.log("KLingPos", kingPos)
     if (castleCheck[1] && castleCheck[2]) {
-      console.log(this.emptySquare([r, c + 2]))
-      console.log([r, c + 2])
       let rightCastle = true;
       for (let i = 1; i <= 2; i++) {
         if (!this.emptySquare(board[r][c + i]) || this.kingUnderAttack(board, kingPos, [r, c + i], king)) {

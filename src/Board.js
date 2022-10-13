@@ -54,10 +54,33 @@ class Board extends React.Component {
   // Called when a player promotes a pawn and selects piece to promote to
   selectPromote(selectedPiecePos, newPiece) {
     const [pr, pc] = selectedPiecePos;
+    const {kingPos, castleCheck, lastEnPassant, turn} = this.state;
+    const kIdx = newPiece.type? 0 : 1;
+    const kOppIdx = kIdx? 0: 1;
     const newBoard = this.state.board;
     newBoard[pr][pc] = newPiece;
-    this.setState({board: newBoard, promotePawn: false});
-    console.log(this.state.board);
+    console.log("color", turn === WHITE? "White": "Black");
+
+    // Check if opponent in check
+    const inCheck = Game.checkedOpponent(newBoard, newPiece.type, kingPos[kOppIdx]);
+    // Check for checkmate
+    if (inCheck && Game.isCheckmate(newBoard, newPiece, kingPos[kOppIdx])) {
+      console.log("CHEKMATE")
+      this.setState({board: newBoard, winner: newPiece.type, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false, promotePawn: false});
+    }
+    // Check for draw
+    else if (Game.draw(newBoard, newPiece, kingPos[kOppIdx], castleCheck, lastEnPassant)) {
+      this.setState({board: newBoard, draw: true, legalMoves: [], lastSelectedPiecePos: false, promotePawn: false});
+    } 
+    else {
+      this.setState({
+        board: newBoard, 
+        lastSelectedPiecePos: false, 
+        legalMoves: [], 
+        inCheck: inCheck, 
+        promotePawn: false
+      });
+    }
   }
 
   // Called when player clicks on a piece
@@ -85,7 +108,7 @@ class Board extends React.Component {
       else if (retBoard.board){
         this.setState({
           board: retBoard.board, 
-          lastSelectedPiecePos: retBoard.lastSe, 
+          lastSelectedPiecePos: false, 
           turn: !turn, 
           legalMoves: [], 
           kingPos: retBoard.kingPos, 
@@ -96,10 +119,8 @@ class Board extends React.Component {
           promotePawn: retBoard.promotePawn
         });
         if (turn === WHITE) {
-          console.log("Soundeffect");
           this.playSound("./soundEffects/whiteMove.wav");
         }
-
         else this.playSound("./soundEffects/blackMove.wav");
       } 
       return;
