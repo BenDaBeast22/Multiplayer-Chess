@@ -113,8 +113,7 @@ class Board extends React.Component {
     const lMoves = selectedPiece.allowedMoves(board, selectedPiecePos, selectedPiece, kingPos[kIdx], castleCheck[cIdx], lastEnPassant);
     this.setState({lastSelectedPiecePos: selectedPiecePos, legalMoves: lMoves});
   }
-  dropMove(selectedPiece, movedSqr) {
-    this.setState({pos: selectedPiece});
+  dropMove(movedSqr) {
     this.selectPiece(movedSqr);
   }
   playSound(src) {
@@ -207,7 +206,7 @@ class Board extends React.Component {
           selectorSquare = this.selectorSquare(promotePawn, selectorSquares, pos); 
           console.log(selectorSquare)
         }
-        row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove} selectorSquare={selectorSquare} selectPromote={this.selectPromote} promotePos={promotePawn}/>)
+        row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove} selectorSquare={selectorSquare} selectPromote={this.selectPromote} promotePos={promotePawn} turn={turn}/>)
         cOdd = !cOdd;
       }
       chessBoard.push(<tr className="Row" key={r + 1}>{row}</tr>)   

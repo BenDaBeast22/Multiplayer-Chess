@@ -20,15 +20,16 @@ class Square extends React.Component {
     this.props.selectPiece();
   }
   handleDragStart(e) {
-    console.log('dragStart', this.props.pos);
-    e.dataTransfer.setData("pos", this.props.pos);
+    // e.dataTransfer.setData("pos", this.props.pos);
+    // e.dataTransfer.setData("piece", this.props.piece);
     e.dataTransfer.effectAllowed = "move";
-    this.props.selectPiece();
+    if (!this.props.isSelected) this.props.selectPiece();
     // e.transfer.setData("pos", this.props.pos);
   }
   handleDragOver(e) {
     e.stopPropagation();
     e.preventDefault();
+    console.log(e);
     this.setState({dragOver: true})
   }
   handleDragLeave(e) {
@@ -36,18 +37,20 @@ class Square extends React.Component {
   }
   handleDrop(e) {
     e.preventDefault();
-    const selectedPiece = e.dataTransfer.getData("pos");
+    // const selectedPiece = e.dataTransfer.getData("pos");
     const movedSqr = this.props.pos;
-    this.props.dropMove(selectedPiece, movedSqr);
+    this.setState({dragOver: false});
+    this.props.dropMove(movedSqr);
   }
   handlePromote() {
     const {promotePos, selectorSquare, selectPromote} = this.props;
     selectPromote(promotePos, selectorSquare);
   }
   render(){
-    const {piece, isLegal, selectorSquare} = this.props;
+    const {piece, isLegal, selectorSquare, turn} = this.props;
     const {dragOver} = this.state;
     const classes = "square" + (this.props.isDark ? " dark" : " light") + (this.props.isSelected ? " selected": "" + (this.props.inCheck ? " inCheck": "") + (this.props.draw ? " draw" : ""));
+    const pieceClasses = "piece" + (isLegal? " capture": "");
     const dragClasses = (dragOver && isLegal) ? " hover" : "";
     return (
       <>
@@ -56,7 +59,7 @@ class Square extends React.Component {
             <td onClick={this.handleClick} className={classes+dragClasses} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onDragLeave={this.handleDragLeave}>
             {
               piece !== '-'? 
-                <img className="piece" src={`./images/${piece.imgName}.png`} onDragStart={this.handleDragStart}/>
+                <img className={pieceClasses} src={`./images/${piece.imgName}.png`} onDragStart={this.handleDragStart}/>
               : 
                 <i className={`${isLegal && !dragOver? 'fa-solid fa-circle legal': ''}`}/>
             }

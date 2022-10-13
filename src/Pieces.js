@@ -286,11 +286,27 @@ class King extends Piece {
   castleMoves(board, kingPos, castleCheck, king) {
     const cMoves = [];
     const [r, c] = kingPos;
+    console.log("KLingPos", kingPos)
     if (castleCheck[1] && castleCheck[2]) {
-      if (!this.kingUnderAttack(board, kingPos, [r, c + 1], king)) cMoves.push([r, c + 2]); 
+      console.log(this.emptySquare([r, c + 2]))
+      console.log([r, c + 2])
+      let rightCastle = true;
+      for (let i = 1; i <= 2; i++) {
+        if (!this.emptySquare(board[r][c + i]) || this.kingUnderAttack(board, kingPos, [r, c + i], king)) {
+          rightCastle = false;
+        }
+      }
+      if (rightCastle) cMoves.push([r, c + 2]); 
     }
     if (castleCheck[1] && castleCheck[0]) {
-      if (!this.kingUnderAttack(board, kingPos, [r, c - 1], king)) cMoves.push([r, c - 2], [r, c - 3]);
+      let leftCastle = true;
+      for (let i = 1; i <= 2; i++) {
+        if (!this.emptySquare(board[r][c - i]) || this.kingUnderAttack(board, kingPos, [r, c - i], king)) {
+          leftCastle = false;
+        }
+      }
+      if (!this.emptySquare(board[r][c - 3])) leftCastle = false;
+      if (leftCastle) cMoves.push([r, c - 2], [r, c - 3]);
     }
     return cMoves;
   }

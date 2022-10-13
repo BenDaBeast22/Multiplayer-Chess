@@ -145,7 +145,9 @@ class ChessGame {
           y = 2;
           board[rIdx][3] = board[rIdx][0];
           board[rIdx][0] = "-";
-        } else {
+        } 
+        // Move King without castling
+        else {
           kingPos[kIdx] = endPos;
           castleCheck[cIdx][1] = false;
         }
