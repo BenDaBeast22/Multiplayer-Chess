@@ -1,0 +1,23 @@
+.Chat {
+  text-align: center;
+  width: 40%;
+  background-color: azure;
+}
+
+.Chat-title {
+  color: blue;
+}
+
+.Chat-Message-Box {
+  display: block;
+  list-style: none;
+  padding: 0;
+}
+
+.Chat-Message {
+  background-color: white;
+}
+
+:nth-child(2).Chat-Message {
+  background-color: aliceblue;
+}
