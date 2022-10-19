@@ -5,6 +5,7 @@ import { Piece, King, Queen, Knight, Bishop, Rook } from './Pieces';
 import { arrayEquals, setupBoard } from './Helpers';
 import { Howl, Howler } from 'howler';
 import ChessGame from './ChessGame';
+const socket = require("./connections/socket").socket;
 
 const BLACK = false
 const WHITE = true
@@ -118,6 +119,7 @@ class Board extends React.Component {
           lastEnPassant: retBoard.lastEnPassant,
           promotePawn: retBoard.promotePawn
         });
+        // socket.emit("move", board);
         if (turn === WHITE) {
           this.playSound("./soundEffects/whiteMove.wav");
         }
@@ -196,6 +198,10 @@ class Board extends React.Component {
     Game = new ChessGame();
   }
   render(){
+    // socket.on("move", board => {
+    //   this.setState({board: board})
+    //   console.log("newBoard = ", board);
+    // });
     const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn} = this.state;
     let winMessage = <div>{winner? "White Wins!!!" : "Black Wins!!!"}</div>
     let chessBoard = [];
