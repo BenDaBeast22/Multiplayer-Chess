@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 
 io.on("connection", (client) => {
   console.log(`User connected: ${client.id}`);
-  socketLogic.initializeGame(io, client)
+  socketLogic.initializeGame(io, client);
 });
 
 server.listen(PORT, () => {
