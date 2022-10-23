@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import "./CreateGame.css";
 import {v4 as uuid} from 'uuid';
 const socket = require("../connections/socket").socket;
@@ -10,6 +11,12 @@ class CreateGame extends Component {
     this.state = {username: "", setUsername: false, opponentJoined: false, gameId: ''}
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  componentDidMount() {
+    socket.on("OpponentJoined", gameRoomId => {
+      console.log(`Opponent joined the game: ${gameRoomId}`);
+      this.setState({opponentJoined: true});
+    });
   }
   handleChange(evt) {
     this.setState({username: evt.target.value});
@@ -25,7 +32,6 @@ class CreateGame extends Component {
   }
   render() {
     const { username, setUsername, opponentJoined, gameId } = this.state;
-
     return (
       <>
         {
@@ -35,6 +41,7 @@ class CreateGame extends Component {
                 <label>Enter Your Username:</label>
                 <input value={username} onChange={this.handleChange}></input>
                 <button className="Submit">Submit</button>
+                <div className="Practice"><Link to="/practice">Practice</Link></div>
               </form>
             </div>
           : !opponentJoined ? 
@@ -44,7 +51,7 @@ class CreateGame extends Component {
               <h3>Waiting for opponent to join...</h3>
             </div>
           :
-            <Navigate to="/game"/>
+            <Navigate to={`/game/creator/${gameId}`}/>
         }
       </>
     );

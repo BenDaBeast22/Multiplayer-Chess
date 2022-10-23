@@ -2,10 +2,11 @@ import Board from './Board';
 import Chat from './Chat';
 import "./Game.css";
 
-function Game() {
+function Game(props) {
+  const {color} = props;
   return (
     <div className="Game">
-      <Board />
+      <Board color={color}/>
       <Chat />
     </div>
   );

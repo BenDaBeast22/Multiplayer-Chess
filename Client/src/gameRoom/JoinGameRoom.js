@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import Game from '../Game';
 import "./JoinGameRoom.css";
 const socket = require("../connections/socket").socket;
-
+const WHITE = true;
+const BLACK = false;
 
 const JoinGameRoom = (props) => {
   const [username, setUsername] = useState("");
@@ -25,7 +26,7 @@ const JoinGameRoom = (props) => {
     <>
       {
         enteredUsername?
-          <Game />
+          <Game color={BLACK}/>
         :
           <div className='EnterUsername'>
             <form onSubmit={handleSubmit}>

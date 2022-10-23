@@ -3,6 +3,9 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
+}
+
+.EnterUsername label {
   font-size: 1.6rem;
   font-style: italic;
   font-weight: 400;
@@ -35,6 +38,29 @@
   border: 1px solid rgb(31, 139, 87);
 }
 
+.EnterUsername .Practice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10%;
+  width: 90px;
+  height: 30px;
+  margin-top: 10px;
+  font-style: none;
+  font-size: 0.9rem;
+  background-color: rgb(172, 94, 223);
+  border: 1px solid rgb(114, 31, 139);
+}
+
+.EnterUsername .Practice a {
+  text-decoration: none;
+  color: black;
+}
+
 .EnterUsername .Submit:hover {
   background-color: rgb(98, 240, 193);
+}
+
+.EnterUsername .Practice:hover {
+  background-color: rgb(191, 107, 246);
 }

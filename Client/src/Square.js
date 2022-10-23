@@ -64,7 +64,7 @@ class Square extends React.Component {
             <td onClick={this.handleClick} className={classes+dragClasses} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onDragLeave={this.handleDragLeave}>
             {
               piece !== '-'? 
-                <img className={pieceClasses} src={`./images/${piece.imgName}.png`} onDragStart={this.handleDragStart}/>
+                <img className={pieceClasses} src={`/images/${piece.imgName}.png`} onDragStart={this.handleDragStart}/>
               : 
                 <i className={`${isLegal && !dragOver? 'fa-solid fa-circle legal': ''}`}/>
             }

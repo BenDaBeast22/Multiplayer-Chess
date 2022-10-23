@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { useParams } from 'react-router-dom';
+import { Howl, Howler } from 'howler';
 import "./Chat.css";
 const socket = require("./connections/socket").socket;
 
@@ -9,24 +11,37 @@ class Chat extends Component {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+  componentDidMount() {
+    console.log("Component mount");
+    socket.on('ChatMessage', msg => {
+      console.log("Chat message receieved");
+      this.setState((st) => ({
+        chat: [...st.chat, msg]
+      }));
+      this.playSound("/SoundEffects/notify.mp3");
+    });
+  }
+  playSound(src) {
+    const sound = new Howl({src, volume: 0.2});
+    sound.play();
+  }
   handleMessageChange(evt) {
     this.setState({message: evt.target.value})
   }
   handleSubmit(evt) {
     evt.preventDefault();
+    const { params } = this.props;
     const { message } = this.state;
-    console.log(message);
+    const gameId = params.gameId;
+    const chatMessage = {gameRoomId: gameId, msg: message}
     if (message) {
-      socket.emit("chat message", message);
+      socket.emit("SendMessage", chatMessage);
       this.setState({message: ""});
     }
   }
   render() {
     let { message, chat } = this.state;
     console.log(chat);
-    socket.on('chat message', msg => {
-      this.setState({chat: [...chat, msg]});
-    });
     const chatMessages = chat.map((msg, i) => (
       <li key={i} className='Chat-Message'>{msg}</li>
     ));
@@ -45,4 +60,6 @@ class Chat extends Component {
   }
 }
 
-export default Chat;
+export default (props) => (
+  <Chat {...props} params={useParams()}/>
+);

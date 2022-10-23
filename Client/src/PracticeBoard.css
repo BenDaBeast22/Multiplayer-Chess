@@ -1,0 +1,54 @@
+.Board {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: lightgray;
+  height: 100vh;
+  width: 100%;
+}
+
+.Table {
+  border-spacing: 1px;
+  box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
+}
+
+.newGame {
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
+  padding: 20px 40px;
+  font-size: 20px;
+  background-color: rgb(126, 91, 160);
+  color: white;
+  border: 2px solid rgb(224, 229, 240);
+  border-radius: 8%;
+  box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
+}
+
+.newGame:hover {
+  background-color: rgb(132, 96, 167);
+}
+
+.back {
+  display: block;
+  margin: 0 auto;
+  margin-top: 10px;
+  padding: 10px 40px;
+  font-size: 20px;
+  background-color: rgb(193, 79, 117);
+  color: white;
+  border: 2px solid rgb(224, 229, 240);
+  border-radius: 8%;
+  box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
+}
+
+.back a {
+  text-decoration: none;
+  color: white;
+}
+
+.back:hover {
+  background-color: rgb(195, 89, 125);
+}
+

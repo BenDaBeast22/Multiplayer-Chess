@@ -1,12 +1,11 @@
-import './Board.css'
+import './PracticeBoard.css'
 import React from 'react'
 import Square from './Square';
-import { Piece, King, Queen, Knight, Bishop, Rook, Pawn } from './Pieces';
+import { Piece, King, Queen, Knight, Bishop, Rook } from './Pieces';
 import { arrayEquals, setupBoard } from './Helpers';
 import { Howl, Howler } from 'howler';
-import { useParams } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import ChessGame from './ChessGame';
-const socket = require("./connections/socket").socket;
 
 const BLACK = false
 const WHITE = true
@@ -17,17 +16,14 @@ const soundEffects = {
 }
 
 let Game = new ChessGame();
-console.log("Game Socket = ", socket);
-console.log("Game Socket Id = ", socket.id);
 
-class Board extends React.Component {
+class PracticeBoard extends React.Component {
   static defaultProps = {
     nRows: 8,
     nCols: 8,
   }
   constructor(props) {
     super(props);
-    // console.log("props = ", props);
     this.state = {
       board: setupBoard(),
       lastSelectedPiecePos: false,
@@ -40,28 +36,12 @@ class Board extends React.Component {
       castleCheck: [[true, true, true], [true, true, true]],
       lastEnPassant: false,
       draw: false, 
-      promotePawn: false,   
+      promotePawn: false, 
+      
     }
     this.resetBoard = this.resetBoard.bind(this);
     this.dropMove = this.dropMove.bind(this);
     this.selectPromote = this.selectPromote.bind(this);
-  }
-  componentDidMount() {
-    socket.on("opponent move", opponentMove => {
-      // debugger;
-      const {board} = this.state;
-      const {moveInfo, state} = opponentMove;
-      const {lastSelectedPiecePos, selectedPiecePos} = moveInfo;
-      const newBoard = board;
-      const [r, c] = lastSelectedPiecePos;
-      const [x, y] = selectedPiecePos;
-      newBoard[x][y] = board[r][c];
-      newBoard[r][c] = "-";
-      state.board = newBoard;
-      // const piece = _.cloneDeep(board[r][c]);
-      console.log("opponent move!!!");
-      this.setState(state);
-    })
   }
 
   // Checks to see if another piece is selected
@@ -100,7 +80,8 @@ class Board extends React.Component {
         lastSelectedPiecePos: false, 
         legalMoves: [], 
         inCheck: inCheck, 
-        promotePawn: false,   
+        promotePawn: false,
+        
       });
     }
   }
@@ -129,7 +110,7 @@ class Board extends React.Component {
         return;
       }
       else if (retBoard.board){
-        const moveState = {
+        moveState = {
           board: retBoard.board, 
           lastSelectedPiecePos: false, 
           turn: !turn, 
@@ -142,29 +123,22 @@ class Board extends React.Component {
           promotePawn: retBoard.promotePawn
         }
         this.setState(moveState);
-        const move = {
-          lastSelectedPiecePos,
-          selectedPiecePos
-        }
-        // socket.emit("move", board);
+
         this.playSound("/soundEffects/move.mp3");
+
         // if (turn === WHITE) {
         //   this.playSound("/soundEffects/whiteMove.wav");
         // }
         // else this.playSound("/soundEffects/blackMove.wav");
-        // Let opponent know that move was made
-        socket.emit("new move", {state: moveState, moveInfo: move, gameRoomId: this.props.params.gameId});
       } 
       return;
     }
     // If piece is selected or switch to another piece
-    debugger;
     const selectedPiece = board[r][c];
-    if (!selectedPiece instanceof Piece || selectedPiece.type !== turn || selectedPiece.type !== this.props.color) return;
+    if (!selectedPiece instanceof Piece || selectedPiece.type !== turn) return;
     const kIdx = selectedPiece.type? 0 : 1;
     const cIdx = selectedPiece.type? 0 : 1;
     // Show legal moves when piece is selected
-    console.log("Logging selectedPiece", selectedPiece)
     const lMoves = selectedPiece.allowedMoves(board, selectedPiecePos, selectedPiece, kingPos[kIdx], castleCheck[cIdx], lastEnPassant);
     this.setState({lastSelectedPiecePos: selectedPiecePos, legalMoves: lMoves});
   }
@@ -230,10 +204,6 @@ class Board extends React.Component {
     Game = new ChessGame();
   }
   render(){
-    // socket.on("move", board => {
-    //   this.setState({board: board})
-    //   console.log("newBoard = ", board);
-    // });
     const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn} = this.state;
     let winMessage = <div>{winner? "White Wins!!!" : "Black Wins!!!"}</div>
     let chessBoard = [];
@@ -247,27 +217,12 @@ class Board extends React.Component {
       console.log(selectorSquares);
     }
     // Iterated through rows backwards so that white would be at row 0 similar to chess notation
-    const color = this.props.color;
-    let rp;
-    let off;
-    let lr;
-    if (color === WHITE) {
-      rp = 7;
-      off = -1;
-      lr  = 0;
-    }
-    else { //Color is BLACK
-      rp = 0;
-      off = 1;
-      lr = 7;
-    }
-    for(let r = rp;color? r >= lr : r <= lr; r += off){
+    for(let r = 7; r >= 0; r--){
       let row = [] 
       cOdd = rOdd;
       for(let c = 0; c < this.props.nCols; c++){
         const sqr = `${String.fromCharCode(97 + c)}${r + 1}`;
         const isDark = cOdd? true: false;
-        console.log("piece = ", board[r][c])
         const piece = board[r][c];
         const pos = [r, c];
         const isSelected = arrayEquals(pos, lastSelectedPiecePos);
@@ -280,29 +235,25 @@ class Board extends React.Component {
           selectorSquare = this.selectorSquare(promotePawn, selectorSquares, pos); 
           console.log(selectorSquare)
         }
-        console.log(r, c);
         row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove} selectorSquare={selectorSquare} selectPromote={this.selectPromote} promotePos={promotePawn} turn={turn}/>)
         cOdd = !cOdd;
       }
       chessBoard.push(<tr className="Row" key={r + 1}>{row}</tr>)   
-      rOdd = !rOdd;
-      console.log("r = ", r); 
+      rOdd = !rOdd;  
     }
     // Render Chess Pieces
     return (
       <div className="Board noselect">
-        <h1 className='text-align: center;'>Socket Id: {socket.id} </h1>
         <table className="Table">
           <tbody>
             {chessBoard}
           </tbody>
         </table>
         <button onClick={this.resetBoard}className="newGame">New Game</button>
+        <div className="back"><Link to="/">Back</Link></div>
       </div>
     );
   }
 }
 
-export default (props) => (
-  <Board {...props} params={useParams()}/>
-);
+export default PracticeBoard;
