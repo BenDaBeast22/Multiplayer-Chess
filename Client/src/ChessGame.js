@@ -92,6 +92,28 @@ class ChessGame {
     board[a][b] = piece;
     return false;
   } 
+  // Update kingPos and move rook onto the correct square
+  // completeCastle(board, piece, startPos, endPos, kingPos, kIdx, putInCheck) {
+  //   const startCol = startPos[1];
+  //   const endCol = endPos[1];
+  //   const kColDiff = endCol - startCol;
+  //   const rIdx = piece.type? 0: 7;
+  //   // Right Castles
+  //   if (!putInCheck && kColDiff === 2) {
+  //     board[rIdx][5] = board[rIdx][7];
+  //     board[rIdx][7] = "-";
+  //   }
+  //   // Left Castles
+  //   else if(!putInCheck && (kColDiff === -2 || kColDiff === -3)) {
+  //     board[rIdx][3] = board[rIdx][0];
+  //     board[rIdx][0] = "-";
+  //   } 
+  //   // Move King without castling
+  //   else {
+  //     kingPos[kIdx] = endPos;
+  //     castleCheck[cIdx][1] = false;
+  //   }
+  // }
   draw (board, piece, kingOppPos, castleCheck, lastEnPassant) {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
@@ -113,6 +135,7 @@ class ChessGame {
     let inCheck = false;
     let checkmate = false;
     let enPassantSet = false;
+    let capture = false;
     const kIdx = piece.type? 0 : 1;
     const kOppIdx = kIdx? 0: 1;
     const cIdx = piece.type? 0 : 1;
@@ -125,10 +148,12 @@ class ChessGame {
       checkmate: checkmate,
       castleCheck: castleCheck,
       lastEnPassant: lastEnPassant,
-      draw: draw
+      draw: draw,
+      capture: capture
     }
     const legalMoves = piece.allowedMoves(board, startPos, piece, kingPos[kIdx], castleCheck[cIdx], retBoard.lastEnPassant);
     if (this.isLegalMove(legalMoves, endPos)) {
+      retBoard.capture = board[x][y] instanceof Piece; 
       // If moving piece is king adjust kingPos and castle rights set to false
       if (piece instanceof King) {
         const kColDiff = y - b;
@@ -173,8 +198,7 @@ class ChessGame {
           retBoard.promotePawn = endPos;
           retBoard.lastSelectedPiecePos = startPos;
           console.log(retBoard.promotePawn);
-        }
-        
+        } 
       }
       if (!enPassantSet) retBoard.lastEnPassant = false;
       board[a][b] = "-";

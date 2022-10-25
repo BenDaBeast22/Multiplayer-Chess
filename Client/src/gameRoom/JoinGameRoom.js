@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 import Game from '../Game';
 import "./JoinGameRoom.css";
@@ -9,6 +9,7 @@ const BLACK = false;
 const JoinGameRoom = (props) => {
   const [username, setUsername] = useState("");
   const [enteredUsername, setEnterUsername] = useState(false);
+  const [opponentUsername, setOpponentUsername] = useState(false);
   const { gameId } = useParams();
 
   const handleChange = e => {
@@ -18,15 +19,20 @@ const JoinGameRoom = (props) => {
   const handleSubmit = e => {
     e.preventDefault();
     console.log("game id = " + gameId);
-    socket.emit("JoinGame", gameId);
+    const join = {gameRoomId: gameId, username}
+    socket.emit("JoinGame", join);
     setEnterUsername(true);
   }
-
+  useEffect(() => {
+    socket.on("creator username", creatorUsername => {
+      setOpponentUsername(creatorUsername);
+    })
+  }, [socket])
   return (
     <>
       {
-        enteredUsername?
-          <Game color={BLACK}/>
+        enteredUsername && opponentUsername?
+          <Game username={username} opponentUsername={opponentUsername} color={BLACK}/>
         :
           <div className='EnterUsername'>
             <form onSubmit={handleSubmit}>

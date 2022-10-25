@@ -71,7 +71,7 @@ class Square extends React.Component {
             </td>
           :
           <td className="Selector" onClick={this.handlePromote}>
-            <img className="piece" src={`./images/${selectorSquare.imgName}.png`}/>
+            <img className="piece" src={`/images/${selectorSquare.imgName}.png`}/>
           </td>
         }
       </>

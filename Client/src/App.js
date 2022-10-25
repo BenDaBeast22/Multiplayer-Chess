@@ -1,6 +1,6 @@
 import './App.css';
 import Game from './Game';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Route, Routes } from 'react-router-dom';
 import CreateGame from './gameRoom/CreateGame';
 import JoinGameRoom from './gameRoom/JoinGameRoom';
@@ -19,13 +19,26 @@ const BLACK = false;
 */
 
 function App() {
-  const [username, setUsername] = useState('');
+  const [creatorUsername, setCreatorUsername] = useState('');
+  const [playerUsername, setPlayerUsername] = useState('');
+  
+  const handleSetCreatorUsername = newUsername => {
+    setCreatorUsername(newUsername);
+  }
+
+  const handleSetPlayerUsername = newUsername => {
+    setPlayerUsername(newUsername);
+  }
+  useEffect(() => {
+    console.log("Opponent Username ===== ", playerUsername);
+  }, [playerUsername]);
+
   return (
     <Routes>
-      <Route path="/" element={<CreateGame />} />
+      <Route path="/" element={<CreateGame setCreatorUsername={handleSetCreatorUsername} setPlayerUsername={handleSetPlayerUsername}/>} />
       <Route path="/practice" element={<PracticeBoard />} />
       <Route path="/game/:gameId" element={<JoinGameRoom />} />
-      <Route path="/game/creator/:gameId" element={<Game color={WHITE}/>}/>
+      <Route path="/game/creator/:gameId" element={<Game color={WHITE} username={creatorUsername} opponentUsername={playerUsername}/>}/>
       <Route path="*" element={<h1>401 Error</h1>} />
     </Routes>
   );

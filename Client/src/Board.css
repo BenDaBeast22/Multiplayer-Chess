@@ -13,20 +13,33 @@
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
 }
 
-.newGame {
+.newGame, .resign {
   display: block;
   margin: 0 auto;
   margin-top: 40px;
-  padding: 20px 40px;
+  padding: 10px 40px;
   font-size: 20px;
-  background-color: rgb(126, 91, 160);
   color: white;
   border: 2px solid rgb(224, 229, 240);
   border-radius: 8%;
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
 }
 
+.newGame {
+  background-color: rgb(126, 91, 160);
+
+}
+
+.resign {
+  background-color: rgb(210, 66, 66);
+
+}
+
+.resign:hover {
+  background-color: rgb(223, 86, 86)
+}
+
 .newGame:hover {
-  background-color: rgb(132, 96, 167);
+  background-color: rgb(153, 120, 187);
 }
 

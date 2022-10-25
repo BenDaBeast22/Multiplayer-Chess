@@ -5,9 +5,15 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cors = require("cors");
 const socketLogic = require("./socketLogic");
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
+
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static('build'));
+//   app.get
+// }
 
 app.use(cors());
+// app.use((req, res) => res.sendFile(path.resolve('Server', 'build', 'index.html')))
 
 const io = new Server(server, {
   cors: {
