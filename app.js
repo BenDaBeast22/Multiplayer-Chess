@@ -9,10 +9,13 @@ const path = require("path");
 // const PORT = 8000;
 PORT = process.env.PORT || 8000;
 
-// if (process.env.NODE_ENV === "production") {
-console.log("path = ", path.join(__dirname, "Client" , "build"));
-app.use(express.static(path.join(__dirname, "Client" , "build")));
-// }
+if (process.env.NODE_ENV === "production") {
+  console.log("path = ", path.join(__dirname, "Client" , "build"));
+  app.use(express.static(path.join(__dirname, "Client" , "build")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'Client', 'build', 'index.html'));
+  })
+}
 
 app.use(cors());
 // app.use((req, res) => res.sendFile(path.resolve('Server', 'build', 'index.html')))
