@@ -5,11 +5,13 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cors = require("cors");
 const socketLogic = require("./socketLogic");
-const PORT = process.env.PORT || 8000;
+const path = require("path");
+// const PORT = 8000;
+PORT = process.env.PORT || 8000;
 
 // if (process.env.NODE_ENV === "production") {
-//   app.use(express.static('build'));
-//   app.get
+console.log("path = ", path.join(__dirname, "..", "Client" , "build"));
+app.use(express.static(path.join(__dirname, "..", "Client" , "build")));
 // }
 
 app.use(cors());
@@ -22,9 +24,9 @@ const io = new Server(server, {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("<h1>Chess Server</h1>");
-});
+// app.get("/", (req, res) => {
+//   res.send("<h1>Chess Server</h1>");
+// });
 
 io.on("connection", (client) => {
   console.log(`User connected: ${client.id}`);
