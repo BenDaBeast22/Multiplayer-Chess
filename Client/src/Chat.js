@@ -18,7 +18,7 @@ class Chat extends Component {
       this.setState((st) => ({
         chat: [...st.chat, msg]
       }));
-      this.playSound("/SoundEffects/notify.mp3");
+      this.playSound("/soundEffects/notify.mp3");
     });
   }
   playSound(src) {
