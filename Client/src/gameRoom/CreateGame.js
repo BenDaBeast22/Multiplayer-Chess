@@ -37,7 +37,7 @@ class CreateGame extends Component {
   }
   render() {
     const { username, setUsername, opponentJoined, gameId } = this.state;
-    const gameLink = `http:localhost:3000/game/${gameId}`;
+    const gameLink = `${window.location.origin}/game/${gameId}`;
     return (
       <>
         {
