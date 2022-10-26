@@ -1,4 +1,4 @@
-.Board {
+.Practice-Board {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -8,12 +8,12 @@
   width: 100%;
 }
 
-.Table {
+.Practice-Board .Table {
   border-spacing: 1px;
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
 }
 
-.newGame {
+.Practice-Board .newGame {
   display: block;
   margin: 0 auto;
   margin-top: 20px;
@@ -26,11 +26,11 @@
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
 }
 
-.newGame:hover {
+.Practice-Board .newGame:hover {
   background-color: rgb(132, 96, 167);
 }
 
-.back {
+.Practice-Board .back {
   display: block;
   margin: 0 auto;
   margin-top: 10px;
@@ -43,12 +43,12 @@
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
 }
 
-.back a {
+.Practice-Board .back a {
   text-decoration: none;
   color: white;
 }
 
-.back:hover {
+.Practice-Board .back:hover {
   background-color: rgb(195, 89, 125);
 }
 

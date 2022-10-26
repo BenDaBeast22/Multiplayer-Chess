@@ -65,9 +65,10 @@ function initializeGame(sio, gameSocket) {
   }
   
   function sendMessage (chatMessage) {
-    const {gameRoomId, msg} = chatMessage;
+    const {gameRoomId, msg, username} = chatMessage;
+    const response = {msg, username}
     console.log("Chat Message = ", chatMessage);
-    io.to(gameRoomId).emit("ChatMessage", msg);
+    io.to(gameRoomId).emit("ChatMessage", response);
   }
 
   function resign (gameRoomId) {

@@ -231,7 +231,7 @@ class Board extends React.Component {
     this.selectPiece(movedSqr);
   }
   playSound (src) {
-    const sound = new Howl({src});
+    const sound = new Howl({src, volume: 0.2});
     sound.play();
   }
   playTwoSounds (src, secondSrc) {
@@ -346,8 +346,7 @@ class Board extends React.Component {
     // Render Chess Pieces
     return (
       <div className="Board noselect">
-        <h2 className='text-align: center;'>Socket Id: {socket.id} </h2>
-        <h1 className='text-align: center;'>{this.props.username} VS {this.props.opponentUsername}</h1>
+        <h1 className='versus'>{this.props.username} VS {this.props.opponentUsername}</h1>
         <table className="Table">
           <tbody>
             {chessBoard}

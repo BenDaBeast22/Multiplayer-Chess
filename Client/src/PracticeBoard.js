@@ -243,7 +243,7 @@ class PracticeBoard extends React.Component {
     }
     // Render Chess Pieces
     return (
-      <div className="Board noselect">
+      <div className="Practice-Board noselect">
         <table className="Table">
           <tbody>
             {chessBoard}

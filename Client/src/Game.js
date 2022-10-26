@@ -1,7 +1,6 @@
 import Board from './Board';
 import Chat from './Chat';
 import "./Game.css";
-const socket = require("./connections/socket").socket;
 
 
 function Game(props) {

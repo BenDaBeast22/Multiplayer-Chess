@@ -178,8 +178,8 @@ class ChessGame {
         }
       }
       else if (piece instanceof Rook) {
-        if (a === 0) castleCheck[cIdx][0] = false;
-        else if (a === 7) castleCheck[cIdx][2] = false;
+        if (b === 0) castleCheck[cIdx][0] = false;
+        else if (b === 7) castleCheck[cIdx][2] = false;
       }
       else if (piece instanceof Pawn) {
         // Set the lastEnPassant 
@@ -199,6 +199,11 @@ class ChessGame {
           retBoard.lastSelectedPiecePos = startPos;
           console.log(retBoard.promotePawn);
         } 
+      }
+      // If rook is captured can't castle on that side
+      if (board[x][y] instanceof Rook) {
+        if (y === 0) castleCheck[cIdx][0] = false;
+        else if (y === 7) castleCheck[cIdx][2] = false;
       }
       if (!enPassantSet) retBoard.lastEnPassant = false;
       board[a][b] = "-";

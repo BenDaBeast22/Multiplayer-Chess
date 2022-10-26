@@ -14,6 +14,7 @@ class Chat extends Component {
   componentDidMount() {
     console.log("Component mount");
     socket.on('ChatMessage', msg => {
+
       console.log("Chat message receieved");
       this.setState((st) => ({
         chat: [...st.chat, msg]
@@ -30,10 +31,10 @@ class Chat extends Component {
   }
   handleSubmit(evt) {
     evt.preventDefault();
-    const { params } = this.props;
+    const { params, username } = this.props;
     const { message } = this.state;
     const gameId = params.gameId;
-    const chatMessage = {gameRoomId: gameId, msg: message}
+    const chatMessage = {gameRoomId: gameId, msg: message, username}
     if (message) {
       socket.emit("SendMessage", chatMessage);
       this.setState({message: ""});
@@ -42,20 +43,27 @@ class Chat extends Component {
   render() {
     let { message, chat } = this.state;
     console.log(chat);
-    const chatMessages = chat.map((msg, i) => (
-      <li key={i} className='Chat-Message'>{msg}</li>
-    ));
+    const chatMessages = chat.map((msg, i) => {
+      const isOppMsg = this.props.username !== msg.username;
+      const chatClasses = "Chat-Message" + (isOppMsg? " Opponent-Chat-Message" : "");
+      console.log(chatClasses)
+      return <li key={i} className={chatClasses}><span className='Chat-username'><strong>{msg.username}</strong></span> {msg.msg}</li>
+    });
     return (
       <div className="Chat">
-        <h3 className="Chat-title">Chat</h3>
-        <ol className="Chat-Message-Box">
-          {chatMessages}
-        </ol>
-        <form onSubmit={this.handleSubmit} className='inputMessage'>
-          <input name="message" value={message} placeholder='type message here...' onChange={this.handleMessageChange}/>
-          <button>Submit</button>
-        </form>
-      </div>
+        <div className="Chat-Message-Container">
+          <h3 className="Chat-Title">Chat Room</h3>
+          <ol className="Chat-Message-Box">
+            {chatMessages}
+          </ol>
+        </div>
+        <div className="Input-Container">
+          <form onSubmit={this.handleSubmit} className='inputMessage'>
+            <input name="message" maxLength="60" value={message} placeholder='type message here...' onChange={this.handleMessageChange}/>
+            <button>Submit</button>
+          </form>
+        </div>
+      </div> 
     );
   }
 }

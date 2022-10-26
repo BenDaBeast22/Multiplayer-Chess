@@ -1,12 +1,21 @@
 .Chat {
-  text-align: center;
-  width: 40%;
-  background-color: azure;
-  position: relative;
+  width: 500px;
+  height: 70%;
+  background-color: rgb(229, 236, 242);
+  box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
+  border-radius: 5%;
 }
 
-.Chat-title {
-  color: blue;
+.Chat-Message-Container {
+  height: 90%;
+  width: 100%;
+  background-color: rgb(229, 236, 242);
+  overflow-y: scroll;
+  border-radius: 5%;
+}
+
+.Chat-Title {
+  text-align: center;
 }
 
 .Chat-Message-Box {
@@ -15,22 +24,37 @@
   padding: 0;
 }
 
-.Chat-Message {
-  background-color: white;
+.Chat-username {
+  font-style: italic;
+  color:rgb(60, 58, 59);
+  margin: 0 5px;
 }
 
-:nth-child(even).Chat-Message {
-  background-color: aliceblue;
+.Chat-Message {
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+  padding: 5px;
+  margin: 10px;
+  overflow: break-word;
+}
+
+.Opponent-Chat-Message {
+  background-color: rgb(190, 215, 250);
+}
+
+.Input-Container {
+  height: 10%;
+  display: flex;
+  align-items: center;
 }
 
 .inputMessage {
+  height: 50%;
+  width: 100%;
   display: flex;
   justify-content: center;
-  position: absolute;
-  width: 100%;
-  bottom: 5%;
 }
 
 .inputMessage input {
-  width: 50%;
+  width: 70%;
 }
