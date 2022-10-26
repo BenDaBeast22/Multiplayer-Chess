@@ -1,0 +1,58 @@
+.GameState {
+  width: 300px;
+  background-color: rgb(191, 213, 226);
+  border-radius: 5%;
+  box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
+  text-align: center;
+  position: relative;
+}
+
+.GameState .username {
+  margin-left: 15px;
+  text-align: left;
+  border-bottom: 1px solid rgba(124, 124, 137, 0.755);
+  margin: 0;
+  padding: 10px;
+}
+
+.GameState .opponentUsername {
+  margin-left: 15px;
+  text-align: left;
+  border-top: 1px solid rgba(124, 124, 137, 0.755);
+  margin: 0;
+  margin-top: 15px;
+  padding: 10px;
+}
+
+.GameState .score {
+  padding: 10px;
+}
+
+.GameState .state {
+  padding: 10px;
+}
+
+.GameState .resignButton, .GameState .rematchButton {
+  display: block;
+  width: 100%;
+  padding: 15px 0;
+  border: none;
+}
+
+.GameState .resignButton {
+  border-top: 1px solid rgba(124, 124, 137, 0.755);
+  border-bottom: 1px solid rgba(124, 124, 137, 0.755);
+}
+.GameState .rematchButton {
+  border-bottom: 1px solid rgba(124, 124, 137, 0.755);
+}
+
+.GameState .rematchButton:hover {
+  background-color: rgb(65, 162, 65);
+  color: white;
+}
+
+.GameState .resignButton:hover {
+  background-color: rgb(170, 77, 77);
+  color: white;
+}

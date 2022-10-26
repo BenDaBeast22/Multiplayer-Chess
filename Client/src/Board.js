@@ -40,12 +40,14 @@ class Board extends React.Component {
       castleCheck: [[true, true, true], [true, true, true]],
       lastEnPassant: false,
       draw: false, 
-      promotePawn: false,   
+      promotePawn: false,
+      resign: false   
     }
     this.resetBoard = this.resetBoard.bind(this);
     this.dropMove = this.dropMove.bind(this);
     this.selectPromote = this.selectPromote.bind(this);
     this.resign = this.resign.bind(this);
+    this.handleUpdateGameState = this.handleUpdateGameState.bind(this);
   }
   componentDidMount() {
     socket.on("opponent move", opponentMove => {
@@ -103,7 +105,8 @@ class Board extends React.Component {
         castleCheck: [[true, true, true], [true, true, true]],
         lastEnPassant: false, 
         draw: false,
-        promotePawn: false
+        promotePawn: false,
+        resign: false
       });
     })
   }
@@ -131,11 +134,11 @@ class Board extends React.Component {
     // Check for checkmate
     if (inCheck && Game.isCheckmate(newBoard, newPiece, kingPos[kOppIdx])) {
       console.log("CHEKMATE")
-      this.setState({board: newBoard, winner: newPiece.type, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false, promotePawn: false});
+      this.setState({board: newBoard, winner: newPiece.type, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false, promotePawn: false}, () => this.handleUpdateGameState());
     }
     // Check for draw
     else if (Game.draw(newBoard, newPiece, kingPos[kOppIdx], castleCheck, lastEnPassant)) {
-      this.setState({board: newBoard, draw: true, legalMoves: [], lastSelectedPiecePos: false, promotePawn: false});
+      this.setState({board: newBoard, draw: true, legalMoves: [], lastSelectedPiecePos: false, promotePawn: false}, () => this.handleUpdateGameState());
     } 
     else {
       const promoteState = {
@@ -170,11 +173,13 @@ class Board extends React.Component {
       const lastSelectedPiece = board[or][oc];
       const retBoard = Game.move(board, lastSelectedPiecePos, selectedPiecePos, lastSelectedPiece, kingPos, inCheck, castleCheck, lastEnPassant, draw);
       if (retBoard.checkmate) {
-        this.setState({winner: lastSelectedPiece.type, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false, turn: !turn});
+        this.setState({winner: lastSelectedPiece.type, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false, turn: !turn}, () => this.handleUpdateGameState());
+        this.playSound("/soundEffects/win.mp3");
         return;
       }
       else if (retBoard.draw) {
-        this.setState({draw: true, legalMoves: [], lastSelectedPiecePos: false, turn: !turn});
+        this.setState({draw: true, legalMoves: [], lastSelectedPiecePos: false, turn: !turn}, () => this.handleUpdateGameState());
+        this.playSound("/soundEffects/draw.mp3");
         return;
       }
       else if (retBoard.board){
@@ -284,10 +289,21 @@ class Board extends React.Component {
     socket.emit("SendMessage", chatMessage);
   }
   // Resets chessboard state
-  resetBoard(){
+  resetBoard() {
     socket.emit("reset game", this.props.params.gameId);
   }
-  render(){
+  // Once game ends sends game state info to GameState component
+  handleUpdateGameState() {
+    const {checkmate, draw, resign, winner} = this.state;
+    const gameState = {
+      checkmate,
+      draw,
+      resign,
+      winner
+    }
+    this.props.updateGameState(gameState);
+  }
+  render() {
     // socket.on("move", board => {
     //   this.setState({board: board})
     //   console.log("newBoard = ", board);
@@ -346,13 +362,12 @@ class Board extends React.Component {
     // Render Chess Pieces
     return (
       <div className="Board noselect">
-        <h1 className='versus'>{this.props.username} VS {this.props.opponentUsername}</h1>
         <table className="Table">
           <tbody>
             {chessBoard}
           </tbody>
         </table>
-        <button onClick={this.resign} className="resign">Resign</button>
+        {/* <button onClick={this.resign} className="resign">Resign</button> */}
         {
           checkmate? (
             <button onClick={this.resetBoard}className="newGame">New Game</button>
