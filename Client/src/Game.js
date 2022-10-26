@@ -8,25 +8,35 @@ import GameState from './GameState';
 class Game extends Component{
   constructor(props) {
     super(props);
-    this.state = {score: [0, 0], message: ""};
+    this.state = {score: [0, 0], message: "", resigned: false, opponentDisconnected: false};
     this.updateGameState = this.updateGameState.bind(this);
+    this.resign = this.resign.bind(this);
+    this.resetGameMessage = this.resetGameMessage.bind(this);
+  }
+  resign () {
+    this.setState({resigned: true});
+  }
+  resetGameMessage () {
+    this.setState({message: ""});
   }
   updateGameState(gameState) {
-    debugger;
-    const {color} = this.props;
-    const {checkmate, draw, resign, winner } = gameState;
-    const colorName = color? "White" : "Black";
-    const opponentColorName = color? "Black" : "White";
-    const lossName = resign? "resigned" : "checkmated"
+    const {checkmate, draw, resign, winner, disconnect } = gameState;
+    let lossName = "checkmated";
+    if (disconnect) {
+      lossName = "disconnected";
+      this.setState({opponentDisconnected: true});
+    } else if (resign) { 
+      lossName = "resigned"; 
+    }
     if (checkmate && winner) {
       this.setState(st => ({
         score: [st.score[0] + 1, st.score[1]], 
-        message: `${opponentColorName} ${lossName} ~ ${colorName} is victorius`
+        message: `Black ${lossName} ~ White is victorius`
       }));
     } else if (checkmate && !winner) {
       this.setState(st => ({
         score: [st.score[0], st.score[1] + 1],
-        message: `${colorName} ${lossName} ~ ${opponentColorName} is victorius`
+        message: `White ${lossName} ~ Black is victorius`
       }));
     } else if (draw) {
       this.setState({message: "Draw"});
@@ -34,10 +44,10 @@ class Game extends Component{
   }
   render() {
     const {color, username, opponentUsername} = this.props;
-    const {score, message} = this.state;
+    const {score, message, opponentDisconnected} = this.state;
     return (
       <div className="Game">
-        <GameState username={username} opponentUsername={opponentUsername} score={score} message={message}/>
+        <GameState color={color} username={username} opponentUsername={opponentUsername} score={score} message={message} resetMessage={this.resetGameMessage} opponentDisconnected={opponentDisconnected} />
         <Board color={color} username={username} opponentUsername={opponentUsername} updateGameState={this.updateGameState} />
         <Chat username={username} opponentUsername={opponentUsername} />
       </div>

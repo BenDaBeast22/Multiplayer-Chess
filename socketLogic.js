@@ -1,4 +1,6 @@
 let gamesInSession = [];
+const WHITE = true;
+const BLACK = false;
 
 function initializeGame(sio, gameSocket) {
   // initialize global variables
@@ -16,6 +18,8 @@ function initializeGame(sio, gameSocket) {
   socket.on("new move", newMove);
   socket.on("resign", resign);
   socket.on('disconnect', onDisconnect);
+  socket.on("rematch request", rematchRequest);
+  socket.on("rematch accepted", rematchAccepted);
   socket.on('reset game', resetGame);
 
   function newMove(move) {
@@ -28,6 +32,7 @@ function initializeGame(sio, gameSocket) {
     console.log("Created Gamroom: ", gameRoomId);
     socket.join(gameRoomId);
     socket.gameId = gameRoomId;
+    socket.color = WHITE;
     console.log("socket = ", socket);
     io.emit("CreateNewGame", {gameId: gameRoomId, socketId: socket.id})
   }
@@ -48,6 +53,7 @@ function initializeGame(sio, gameSocket) {
     } 
     else if (room.size < 2) {
       socket.gameId = gameRoomId;
+      socket.color = BLACK;
       socket.join(socket.gameId);
       console.log(room);
       console.log("emiiting message to others");
@@ -71,14 +77,26 @@ function initializeGame(sio, gameSocket) {
     io.to(gameRoomId).emit("ChatMessage", response);
   }
 
-  function resign (gameRoomId) {
-    socket.to(gameRoomId).emit("opponent resigned", {});
+  function resign (color) {
+    const resign = {resignColor: color, disconnect: false}
+    io.to(socket.gameId).emit("player resigned", resign);
   }
   
   function onDisconnect() {
     const i = gamesInSession.indexOf(socket);
     gamesInSession.splice(i, 1);
     console.log('user disconnected');
+    const resign = {resignColor: socket.color, disconnect: true}
+    socket.to(socket.gameId).emit("player resigned", resign);
+  }
+
+  function rematchRequest () {
+    socket.to(socket.gameId).emit("rematch request");
+  }
+
+  function rematchAccepted () {
+    console.log("rematch Accepted");
+    io.to(socket.gameId).emit("rematch accepted");
   }
 
   function resetGame() {

@@ -47,8 +47,29 @@
   border-bottom: 1px solid rgba(124, 124, 137, 0.755);
 }
 
+.GameState .rematchButton:disabled {
+  background-color: rgb(183, 183, 183);
+  color: rgb(96, 95, 95);
+}
+
+.GameState .rematchButton:disabled:hover {
+  background-color: rgb(204, 203, 203);
+  color: rgb(96, 95, 95);
+  cursor:not-allowed;
+}
+
 .GameState .rematchButton:hover {
-  background-color: rgb(65, 162, 65);
+  background-color: rgb(86, 108, 182);
+  color: white;
+}
+
+.GameState .rematchRequest {
+  background-color: rgb(86, 108, 182);
+  color: white;
+}
+
+.GameState .rematchRequest:hover {
+  background-color: rgb(112, 134, 206);
   color: white;
 }
 
@@ -56,3 +77,4 @@
   background-color: rgb(170, 77, 77);
   color: white;
 }
+

@@ -36,23 +36,23 @@ class Board extends React.Component {
       kingPos: [[0, 4], [7, 4]],
       inCheck: false,
       checkmate: false,
-      winner: false,
+      winner: undefined,
       castleCheck: [[true, true, true], [true, true, true]],
       lastEnPassant: false,
       draw: false, 
       promotePawn: false,
-      resign: false   
+      resign: false,
+      disconnect: false
     }
-    this.resetBoard = this.resetBoard.bind(this);
     this.dropMove = this.dropMove.bind(this);
     this.selectPromote = this.selectPromote.bind(this);
-    this.resign = this.resign.bind(this);
     this.handleUpdateGameState = this.handleUpdateGameState.bind(this);
   }
   componentDidMount() {
     socket.on("opponent move", opponentMove => {
-      const {board} = this.state;
-      const {moveInfo, state} = opponentMove;
+      const { board } = this.state;
+      const { moveInfo, state } = opponentMove;
+      const { checkmate, draw } = state;
       const newBoard = board;
       if (moveInfo["promotePos"]) {
         const {promotePos, promotePiece} = moveInfo;
@@ -83,15 +83,33 @@ class Board extends React.Component {
         newBoard[r][c] = "-";
       }
       state.board = newBoard;
-      console.log("opponent move!!!");
-      this.setState(state);
+      state.winner = !state.winner;
+      this.setState(state, () => {
+        if (checkmate || draw) {
+          this.handleUpdateGameState();
+        }
+      });
     });
-    socket.on("opponent resigned", () => {
-      console.log("Opponent resigned");
-      this.setState(st => ({winner: st.turn, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false}));
+    socket.on("player resigned", resign => {
+      if (this.state.checkmate || this.state.draw) return;
+      const {resignColor, disconnect} = resign;
+      const { color } = this.props;
+      console.log(`${color} resigned`);
+      const resignState = {
+        winner: color === resignColor? !color : color, 
+        resign: true,
+        checkmate: true, 
+        inCheck: true, 
+        legalMoves: [], 
+        lastSelectedPiecePos: false,
+        turn: color === resignColor? color : !color,
+        disconnect: disconnect
+      }
+      this.setState(resignState, () => this.handleUpdateGameState());
+      this.playSound("/soundEffects/lose.mp3");
     });
     socket.on("reset game", () => {
-      console.log("REsetteroo");
+      console.log("Reset Game");
       Game = new ChessGame();
       this.setState({
         board: setupBoard(), 
@@ -101,14 +119,15 @@ class Board extends React.Component {
         kingPos: [[0, 4], [7, 4]], 
         inCheck: false, 
         checkmate: false,
-        winner: false,
+        winner: undefined,
         castleCheck: [[true, true, true], [true, true, true]],
         lastEnPassant: false, 
         draw: false,
         promotePawn: false,
         resign: false
       });
-    })
+      this.playSound("/soundEffects/win.mp3");
+    });
   }
 
   // Checks to see if another piece is selected
@@ -172,14 +191,34 @@ class Board extends React.Component {
       const [or, oc] = lastSelectedPiecePos;
       const lastSelectedPiece = board[or][oc];
       const retBoard = Game.move(board, lastSelectedPiecePos, selectedPiecePos, lastSelectedPiece, kingPos, inCheck, castleCheck, lastEnPassant, draw);
+      const move = {
+        lastSelectedPiecePos,
+        selectedPiecePos
+      }
       if (retBoard.checkmate) {
-        this.setState({winner: lastSelectedPiece.type, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false, turn: !turn}, () => this.handleUpdateGameState());
+        const checkmateState = {
+          winner: lastSelectedPiece.type,
+          checkmate: true, 
+          inCheck: true,
+          legalMoves: [],
+          lastSelectedPiecePos: false, 
+          turn: !turn
+        }
+        this.setState(checkmateState, () => this.handleUpdateGameState());
         this.playSound("/soundEffects/win.mp3");
+        socket.emit("new move", {state: checkmateState, moveInfo: move, gameRoomId: this.props.params.gameId});
         return;
       }
       else if (retBoard.draw) {
-        this.setState({draw: true, legalMoves: [], lastSelectedPiecePos: false, turn: !turn}, () => this.handleUpdateGameState());
+        const drawState = {
+          draw: true, 
+          legalMoves: [], 
+          lastSelectedPiecePos: false, 
+          turn: !turn
+        }
+        this.setState(drawState, () => this.handleUpdateGameState());
         this.playSound("/soundEffects/draw.mp3");
+        socket.emit("new move", {state: drawState, moveInfo: move, gameRoomId: this.props.params.gameId});
         return;
       }
       else if (retBoard.board){
@@ -196,10 +235,6 @@ class Board extends React.Component {
           promotePawn: retBoard.promotePawn
         }
         this.setState(moveState);
-        const move = {
-          lastSelectedPiecePos,
-          selectedPiecePos
-        }
         // socket.emit("move", board);
         if (retBoard.capture && retBoard.inCheck) {
           this.playSound("/soundEffects/capture.mp3");
@@ -279,36 +314,20 @@ class Board extends React.Component {
       }
     }
   }
-  resign() {
-    debugger;
-    if(this.state.checkmate) return;
-    this.setState(st => ({winner: !st.turn, checkmate: true, inCheck: true, legalMoves: [], lastSelectedPiecePos: false}));
-    const gameId = this.props.params.gameId;
-    socket.emit("resign", gameId);
-    const chatMessage = {gameRoomId: gameId, msg: "Opponent Resigned"}
-    socket.emit("SendMessage", chatMessage);
-  }
-  // Resets chessboard state
-  resetBoard() {
-    socket.emit("reset game", this.props.params.gameId);
-  }
   // Once game ends sends game state info to GameState component
   handleUpdateGameState() {
-    const {checkmate, draw, resign, winner} = this.state;
+    const {checkmate, draw, resign, winner, disconnect} = this.state;
     const gameState = {
       checkmate,
       draw,
       resign,
-      winner
+      winner,
+      disconnect
     }
     this.props.updateGameState(gameState);
   }
   render() {
-    // socket.on("move", board => {
-    //   this.setState({board: board})
-    //   console.log("newBoard = ", board);
-    // });
-    const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn} = this.state;
+    const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn, resigned} = this.state;
     let winMessage = <div>{winner? "White Wins!!!" : "Black Wins!!!"}</div>
     let chessBoard = [];
     let cOdd = true;
@@ -367,12 +386,6 @@ class Board extends React.Component {
             {chessBoard}
           </tbody>
         </table>
-        {/* <button onClick={this.resign} className="resign">Resign</button> */}
-        {
-          checkmate? (
-            <button onClick={this.resetBoard}className="newGame">New Game</button>
-          ): null
-        }
       </div>
     );
   }

@@ -12,52 +12,10 @@
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
 }
 
-.newGame, .resign {
-  display: block;
-  margin: 0 auto;
-  margin-top: 40px;
-  padding: 10px 40px;
-  font-size: 20px;
-  color: white;
-  border: 2px solid rgb(224, 229, 240);
-  border-radius: 8%;
-  box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
-}
-
-.newGame {
-  background-color: rgb(126, 91, 160);
-}
-
-.resign {
-  background-color: rgb(210, 66, 66);
-}
-
-.resign:hover {
-  background-color: rgb(223, 86, 86)
-}
-
-.newGame:hover {
-  background-color: rgb(153, 120, 187);
-}
-
-.versus {
-  text-align: center;
-  font-size: 2rem;
-}
-
 @media (max-height: 800px) {
   td.square {
     width: 70px;
     height: 70px;
-  }
-
-  button.newGame, .resign {
-    margin-top: 15px;
-    padding: 10px 30px;
-  }
-
-  .versus {
-    font-size: 1.5rem;
   }
 }
 
