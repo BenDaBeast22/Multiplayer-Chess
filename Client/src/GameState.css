@@ -47,12 +47,12 @@
   border-bottom: 1px solid rgba(124, 124, 137, 0.755);
 }
 
-.GameState .rematchButton:disabled {
+.GameState .rematchButton:disabled, .GameState .resignButton:disabled {
   background-color: rgb(183, 183, 183);
   color: rgb(96, 95, 95);
 }
 
-.GameState .rematchButton:disabled:hover {
+.GameState .rematchButton:disabled:hover, .GameState .resignButton:disabled:hover {
   background-color: rgb(204, 203, 203);
   color: rgb(96, 95, 95);
   cursor:not-allowed;

@@ -3,7 +3,7 @@ import React from 'react'
 import Square from './Square';
 import { Piece, King, Queen, Knight, Bishop, Rook, Pawn } from './Pieces';
 import { arrayEquals, setupBoard } from './Helpers';
-import { Howl, Howler } from 'howler';
+import { Howl } from 'howler';
 import { useParams } from 'react-router-dom';
 import ChessGame from './ChessGame';
 const socket = require("./connections/socket").socket;
@@ -42,7 +42,8 @@ class Board extends React.Component {
       draw: false, 
       promotePawn: false,
       resign: false,
-      disconnect: false
+      disconnect: false,
+      moveNumber: 0
     }
     this.dropMove = this.dropMove.bind(this);
     this.selectPromote = this.selectPromote.bind(this);
@@ -124,7 +125,8 @@ class Board extends React.Component {
         lastEnPassant: false, 
         draw: false,
         promotePawn: false,
-        resign: false
+        resign: false,
+        moveNumber: 0
       });
       this.playSound("/soundEffects/win.mp3");
     });
@@ -180,7 +182,7 @@ class Board extends React.Component {
   // Called when player clicks on a piece
   selectPiece(selectedPiecePos) {
     const [r, c] = selectedPiecePos;
-    const {board, lastSelectedPiecePos, kingPos, inCheck, castleCheck, lastEnPassant, draw, turn, promotePawn} = this.state;
+    const {board, lastSelectedPiecePos, kingPos, inCheck, castleCheck, lastEnPassant, draw, turn, promotePawn, moveNumber} = this.state;
 
     // If a move is made
     if (lastSelectedPiecePos && !this.changeSelection(board, lastSelectedPiecePos, selectedPiecePos)) {
@@ -253,6 +255,12 @@ class Board extends React.Component {
         // else this.playSound("/soundEffects/blackMove.wav");
         // Let opponent know that move was made
         socket.emit("new move", {state: moveState, moveInfo: move, gameRoomId: this.props.params.gameId});
+        this.setState(st => ({
+          moveNumber: st.moveNumber + 1
+        }), 
+        () => {
+          if (this.state.moveNumber === 1) socket.emit("first move");
+        });
       } else {
         this.playSound("/soundEffects/error.mp3");
       }

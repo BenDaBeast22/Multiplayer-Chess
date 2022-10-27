@@ -16,6 +16,7 @@ function initializeGame(sio, gameSocket) {
   socket.on("send creator username", getCreatorUsername);
   socket.on("SendMessage", sendMessage);
   socket.on("new move", newMove);
+  socket.on("first move", firstMove);
   socket.on("resign", resign);
   socket.on('disconnect', onDisconnect);
   socket.on("rematch request", rematchRequest);
@@ -26,6 +27,10 @@ function initializeGame(sio, gameSocket) {
     const { state, gameRoomId, moveInfo } = move;
     console.log("New Move: Socket = ", socket);
     socket.to(gameRoomId).emit("opponent move", {state, moveInfo});
+  }
+
+  function firstMove() {
+    io.to(socket.gameId).emit("first move");
   }
   
   function createNewGame(gameRoomId) {
