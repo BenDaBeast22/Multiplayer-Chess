@@ -1,6 +1,6 @@
 .Chat {
   width: 400px;
-  height: 70%;
+  height: 600px;
   background-color: rgb(229, 236, 242);
   box-shadow: 0 2px 3px 0 rgba(35, 35, 35, 0.372);
   border-radius: 5%;
@@ -9,6 +9,7 @@
 .Chat-Message-Container {
   height: 90%;
   width: 100%;
+  min-height: 200px;
   background-color: rgb(229, 236, 242);
   overflow-y: scroll;
   border-radius: 5%;
@@ -43,6 +44,7 @@
 }
 
 .Input-Container {
+  padding-bottom: 10px;
   height: 10%;
   display: flex;
   align-items: center;

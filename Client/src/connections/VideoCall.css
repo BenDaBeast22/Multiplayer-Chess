@@ -1,0 +1,47 @@
+.My-Video video, .Opp-Video video {
+  width: 300px;
+  height: 250px;
+
+}
+
+.VideoCall .Buttons {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.VideoCall .Buttons .calling {
+  font-style: italic;
+}
+
+.VideoCall .Buttons button {
+  padding: 10px 20px;
+  color: white;
+  border-radius: 5px;
+}
+
+.VideoCall .Buttons .call {
+  background-color: rgb(45, 140, 45);
+  border: 1px solid rgb(34, 119, 78);
+}
+
+.VideoCall .Buttons .call:hover {
+  background-color: rgb(62, 170, 62);
+}
+
+.VideoCall .Buttons .endCall {
+  background-color: rgb(220, 68, 68);
+  border: 1px solid rgb(192, 41, 41);
+}
+
+.VideoCall .Buttons .endCall:hover {
+  background-color: rgb(194, 56, 56);
+}
+
+.VideoCall .Buttons .answer {
+  background-color: rgb(105, 96, 205);
+  border: 1px solid rgb(84, 79, 147);
+}
+
+.VideoCall .Buttons .answer:hover {
+  background-color: rgb(118, 109, 215);
+}

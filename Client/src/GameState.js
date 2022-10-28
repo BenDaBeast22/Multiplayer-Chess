@@ -9,6 +9,7 @@ class GameState extends Component {
     this.state = {rematchWaiting: false, rematchRequest: false}
     this.resign = this.resign.bind(this);
     this.rematch = this.rematch.bind(this);
+    this.toggleComm = this.toggleComm.bind(this);
   }
   componentDidMount() {
     socket.on("rematch request", () => {
@@ -41,9 +42,13 @@ class GameState extends Component {
       this.setState({rematchWaiting: true});
     }
   }
+
+  toggleComm() {
+    this.props.toggleComm();
+  }
   render() {
     const { rematchWaiting, rematchRequest } = this.state;
-    const { username, opponentUsername, score, message, opponentDisconnected, gameover, firstMove } = this.props;
+    const { username, opponentUsername, score, message, opponentDisconnected, gameover, firstMove, videoCall } = this.props;
     const scoreText = `${score[0]} - ${score[1]}`;
     let rematch = "Rematch";
     let rematchClass = "";
@@ -62,6 +67,7 @@ class GameState extends Component {
         <div className='state'><em>{message}</em></div>
         <button className="resignButton" onClick={this.resign} disabled={!firstMove || gameover}>Resign</button>
         <button className={`rematchButton ${rematchClass}`} disabled={!message || opponentDisconnected} onClick={this.rematch}>{rematch}</button>
+        <button className="videoButton" onClick={this.toggleComm} disabled={opponentDisconnected}>{videoCall? "Chat": "Video Call"}</button>
         <p className="opponentUsername">{opponentUsername}</p>
       </div>
     );

@@ -8,13 +8,12 @@ function initializeGame(sio, gameSocket) {
   let socket = gameSocket;
 
   gamesInSession.push(socket);
-  console.log("Games In Session = ", gamesInSession.length)
+  console.log("Games In Session = ", gamesInSession.length);
 
   // define socket listeners
   socket.on("CreateNewGame", createNewGame);
   socket.on("JoinGame", playerJoinGame);
   socket.on("send creator username", getCreatorUsername);
-  socket.on("SendMessage", sendMessage);
   socket.on("new move", newMove);
   socket.on("first move", firstMove);
   socket.on("resign", resign);
@@ -22,6 +21,29 @@ function initializeGame(sio, gameSocket) {
   socket.on("rematch request", rematchRequest);
   socket.on("rematch accepted", rematchAccepted);
   socket.on('reset game', resetGame);
+  // text chat
+  socket.on("SendMessage", sendMessage);
+  // video call
+  socket.on("toggleComm", toggleComm);
+  socket.on("callOpponent", callOpponent);
+  socket.on("answerCall", answerCall);
+  socket.on("endCall", endCall);
+
+  function endCall () {
+    io.to(socket.gameId).emit("resetCall");
+  }
+
+  function toggleComm () {
+    io.to(socket.gameId).emit("toggleComm");
+  }
+
+  function callOpponent(signal) {
+    socket.to(socket.gameId).emit("callOpponent", signal);
+  }
+
+  function answerCall(signal) {
+    socket.to(socket.gameId).emit("callAccepted", signal);
+  }
 
   function newMove(move) {
     const { state, gameRoomId, moveInfo } = move;

@@ -85,6 +85,20 @@ class Board extends React.Component {
       }
       state.board = newBoard;
       state.winner = !state.winner;
+      if (state.checkmate) {
+        this.playSound("/soundEffects/lose.mp3");
+      } else if (state.draw) {
+        this.playSound("/soundEffects/draw.mp3");
+      } else if (state.capture && state.check) {
+        this.playSound("/soundEffects/capture.mp3");
+        this.playSound("/soundEffects/check.mp3");
+      } else if (state.capture) {
+        this.playSound("/soundEffects/capture.mp3");
+      } else if (state.inCheck) {
+        this.playSound("/soundEffects/check.mp3");
+      } else {
+        this.playSound("/soundEffects/move.mp3");
+      }
       this.setState(state, () => {
         if (checkmate || draw) {
           this.handleUpdateGameState();
@@ -234,7 +248,8 @@ class Board extends React.Component {
           checkmate: retBoard.checkmate, 
           castleCheck: retBoard.castleCheck, 
           lastEnPassant: retBoard.lastEnPassant,
-          promotePawn: retBoard.promotePawn
+          promotePawn: retBoard.promotePawn,
+          capture: retBoard.capture
         }
         this.setState(moveState);
         // socket.emit("move", board);

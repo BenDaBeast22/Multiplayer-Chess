@@ -1,7 +1,20 @@
 .Game {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: space-around;
   background-color: lightgray
+}
+
+@media (max-width: 1350px) {
+  .GameState {
+    margin: 30px;
+  }
+  .Game {
+    flex-direction: column;
+  }
+  .Chat {
+    margin: 30px;
+    height: 400px;
+  }
 }

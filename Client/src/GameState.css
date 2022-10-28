@@ -32,7 +32,7 @@
   padding: 10px;
 }
 
-.GameState .resignButton, .GameState .rematchButton {
+.GameState .resignButton, .GameState .rematchButton, .GameState .videoButton {
   display: block;
   width: 100%;
   padding: 15px 0;
@@ -47,12 +47,21 @@
   border-bottom: 1px solid rgba(124, 124, 137, 0.755);
 }
 
+.GameState .videoButton {
+  border-bottom: 1px solid rgba(124, 124, 137, 0.755);
+}
+
+.GameState .videoButton:hover {
+  background-color:rgba(134, 70, 187, 0.746);
+  color: white;
+}
+
 .GameState .rematchButton:disabled, .GameState .resignButton:disabled {
   background-color: rgb(183, 183, 183);
   color: rgb(96, 95, 95);
 }
 
-.GameState .rematchButton:disabled:hover, .GameState .resignButton:disabled:hover {
+.GameState .rematchButton:disabled:hover, .GameState .resignButton:disabled:hover, .GameState .videoButton:disabled:hover {
   background-color: rgb(204, 203, 203);
   color: rgb(96, 95, 95);
   cursor:not-allowed;
