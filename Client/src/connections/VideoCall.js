@@ -111,12 +111,12 @@ const VideoCall = (props) => {
 
   let faceCam = 
     <div className="My-Video">
-      <video playsInline muted ref={myVideo} autoPlay />
+      <video playsInline ref={myVideo} autoPlay />
     </div>
 
   let oppFaceCam = 
     <div className="Opp-Video">
-      <video playsInline muted ref={oppVideo} autoPlay />   
+      <video playsInline ref={oppVideo} autoPlay />   
     </div> 
 
   const callButtons = () => {
