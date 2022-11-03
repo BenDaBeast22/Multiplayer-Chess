@@ -47,6 +47,12 @@ class Game extends Component {
   }
   updateGameState(gameState) {
     const {checkmate, draw, resign, winner, disconnect } = gameState;
+    // if new game
+    debugger;
+    if (!draw && !checkmate) {
+      this.setState({gameover: false});
+      return;
+    }
     let lossName = "checkmated";
     if (disconnect) {
       lossName = "disconnected";

@@ -66,7 +66,7 @@ class GameState extends Component {
         <div className='score'><strong>{scoreText}</strong></div>
         <div className='state'><em>{message}</em></div>
         <button className="resignButton" onClick={this.resign} disabled={!firstMove || gameover}>Resign</button>
-        <button className={`rematchButton ${rematchClass}`} disabled={!message || opponentDisconnected} onClick={this.rematch}>{rematch}</button>
+        <button className={`rematchButton ${rematchClass}`} disabled={!firstMove || opponentDisconnected} onClick={this.rematch}>{rematch}</button>
         <button className="videoButton" onClick={this.toggleComm} disabled={opponentDisconnected}>{videoCall? "Chat": "Video Call"}</button>
         <p className="opponentUsername">{opponentUsername}</p>
       </div>

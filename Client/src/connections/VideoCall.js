@@ -101,7 +101,7 @@ const VideoCall = (props) => {
   const leaveCall = () => {
     setCallEnded(true);
     socket.emit("endCall");
-    // connectionRef.current.destroy();
+    connectionRef.current.destroy();
   }
 
   const playSound = (src) => {

@@ -4,7 +4,7 @@ import Square from './Square';
 import { Piece, King, Queen, Knight, Bishop, Rook, Pawn } from './Pieces';
 import { arrayEquals, setupBoard } from './Helpers';
 import { Howl } from 'howler';
-import { useParams } from 'react-router-dom';
+import { json, useParams } from 'react-router-dom';
 import ChessGame from './ChessGame';
 const socket = require("./connections/socket").socket;
 
@@ -141,7 +141,7 @@ class Board extends React.Component {
         promotePawn: false,
         resign: false,
         moveNumber: 0
-      });
+      }, () => this.handleUpdateGameState());
       this.playSound("/soundEffects/win.mp3");
     });
   }
