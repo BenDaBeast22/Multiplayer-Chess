@@ -2,7 +2,6 @@ import React, { useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 import Game from '../game/Game';
 import { socket } from '../connections/socket';
-import "./JoinGameRoom.css";
 
 const WHITE = true;
 const BLACK = false;
