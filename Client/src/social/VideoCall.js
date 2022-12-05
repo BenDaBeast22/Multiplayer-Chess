@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Peer from "simple-peer";
 import { Howl } from 'howler';
 import "./VideoCall.css";
-const socket = require("./socket").socket;
+const socket = require("../connections/socket").socket;
 
 const VideoCall = (props) => {
   const { username, opponentUsername } = props;

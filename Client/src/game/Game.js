@@ -1,21 +1,24 @@
-import Board from './Board';
-import Chat from './Chat';
-import VideoCall from './connections/VideoCall';
+import Board from '../chess/Board';
+import Chat from '../social/Chat';
+import VideoCall from '../social/VideoCall';
 import { Component } from 'react';
 import "./Game.css";
-import GameState from './GameState';
+import GameState from '../gamestate/GameState';
 import { Howl } from 'howler';
-import { socket } from './connections/socket';
+import { socket } from '../connections/socket';
 
+const WHITE = true;
+const BLACK = false;
 
 class Game extends Component {
   constructor(props) {
     super(props);
-    this.state = {score: [0, 0], message: "", resigned: false, opponentDisconnected: false, gameover: false, firstMove: false, videoCall: false};
+    this.state = {score: [0, 0], message: "", resigned: false, opponentDisconnected: false, gameover: false, firstMove: false, videoCall: false, turn: WHITE};
     this.updateGameState = this.updateGameState.bind(this);
     this.resign = this.resign.bind(this);
     this.resetGameMessage = this.resetGameMessage.bind(this);
     this.toggleComm = this.toggleComm.bind(this);
+    this.switchTurn = this.switchTurn.bind(this);
   }
   componentDidMount () {
     this.playSound("/soundEffects/win.mp3");
@@ -34,6 +37,9 @@ class Game extends Component {
         }
       });
     });
+  }
+  switchTurn() {
+    this.setState(st => !st.turn);
   }
   playSound (src) {
     const sound = new Howl({src, volume: 0.2});
@@ -83,8 +89,25 @@ class Game extends Component {
     const {score, message, opponentDisconnected, gameover, firstMove, videoCall} = this.state;
     return (
       <div className="Game">
-        <GameState color={color} username={username} opponentUsername={opponentUsername} score={score} message={message} resetMessage={this.resetGameMessage} toggleComm={this.toggleComm} opponentDisconnected={opponentDisconnected} gameover={gameover} firstMove={firstMove} videoCall={videoCall}/>
-        <Board color={color} username={username} opponentUsername={opponentUsername} updateGameState={this.updateGameState} />
+        <GameState 
+          color={color} 
+          username={username} 
+          opponentUsername={opponentUsername} 
+          score={score} message={message} 
+          resetMessage={this.resetGameMessage} 
+          toggleComm={this.toggleComm} 
+          opponentDisconnected={opponentDisconnected} 
+          gameover={gameover} 
+          firstMove={firstMove} 
+          videoCall={videoCall}
+        />
+        <Board 
+          color={color} 
+          username={username} 
+          opponentUsername={opponentUsername} 
+          updateGameState={this.updateGameState} 
+          switchTurn={this.switchTurn}
+        />
         {videoCall 
           ? <VideoCall username={username} opponentUsername={opponentUsername}/>
           : <Chat username={username} opponentUsername={opponentUsername} />

@@ -1,13 +1,10 @@
-import './App.css';
-import Game from './Game';
+import Game from './game/Game';
 import React, {useEffect, useState} from 'react';
 import { Route, Routes } from 'react-router-dom';
-import CreateGame from './gameRoom/CreateGame';
-import JoinGameRoom from './gameRoom/JoinGameRoom';
-import PracticeBoard from './PracticeBoard';
+import CreateGame from './gameroom/CreateGame';
+import JoinGameRoom from './gameroom/JoinGameRoom';
+import PracticeBoard from './practice/PracticeBoard';
 
-const WHITE = true;
-const BLACK = false;
 /* Flow
   1. Host goes to root
   2. Client asks for username
@@ -15,8 +12,11 @@ const BLACK = false;
   4. Friend enters link
   5. Friend enters username
   6. Friend joins gameroom
-  7. Both host and friend sent to chess game
+  7. Both host and friend sent to chess game component (The host is WHITE and the friend is BLACK)
 */
+
+const WHITE = true;
+const BLACK = false;
 
 function App() {
   const [creatorUsername, setCreatorUsername] = useState('');
@@ -29,9 +29,6 @@ function App() {
   const handleSetPlayerUsername = newUsername => {
     setPlayerUsername(newUsername);
   }
-  useEffect(() => {
-    console.log("Opponent Username ===== ", playerUsername);
-  }, [playerUsername]);
 
   return (
     <Routes>

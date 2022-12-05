@@ -14,6 +14,7 @@ function initializeGame(sio, gameSocket) {
   socket.on("CreateNewGame", createNewGame);
   socket.on("JoinGame", playerJoinGame);
   socket.on("send creator username", getCreatorUsername);
+  socket.on("move", opponentMove);
   socket.on("new move", newMove);
   socket.on("first move", firstMove);
   socket.on("resign", resign);
@@ -45,10 +46,13 @@ function initializeGame(sio, gameSocket) {
     socket.to(socket.gameId).emit("callAccepted", signal);
   }
 
+  function opponentMove(state) {
+    socket.to(socket.gameId).emit("opponent move", state);
+  }
+
   function newMove(move) {
-    const { state, gameRoomId, moveInfo } = move;
-    console.log("New Move: Socket = ", socket);
-    socket.to(gameRoomId).emit("opponent move", {state, moveInfo});
+    const { state, moveInfo } = move;
+    socket.to(socket.gameId).emit("opponent move", {state, moveInfo});
   }
 
   function firstMove() {

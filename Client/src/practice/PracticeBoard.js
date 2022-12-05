@@ -1,11 +1,11 @@
 import './PracticeBoard.css'
 import React from 'react'
-import Square from './Square';
-import { Piece, King, Queen, Knight, Bishop, Rook } from './Pieces';
-import { arrayEquals, setupBoard } from './Helpers';
+import Square from '../chess/Square';
+import { Piece, King, Queen, Knight, Bishop, Rook } from '../chess/Pieces';
+import { arrayEquals, setupBoard } from '../chess/Helpers';
 import { Howl, Howler } from 'howler';
 import { Link } from "react-router-dom";
-import ChessGame from './ChessGame';
+import ChessGame from '../chess/ChessGame';
 
 const BLACK = false
 const WHITE = true

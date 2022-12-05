@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { useParams } from 'react-router-dom';
 import { Howl, Howler } from 'howler';
 import "./Chat.css";
-const socket = require("./connections/socket").socket;
+const socket = require("../connections/socket").socket;
 
 class Chat extends Component {
   constructor(props) {

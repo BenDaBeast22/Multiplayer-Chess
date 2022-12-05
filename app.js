@@ -7,7 +7,7 @@ const cors = require("cors");
 const socketLogic = require("./socketLogic");
 const path = require("path");
 // const PORT = 8000;
-PORT = process.env.PORT || 8000;
+PORT = process.env.PORT || 8080;
 
 if (process.env.NODE_ENV === "production") {
   console.log("path = ", path.join(__dirname, "Client" , "build"));

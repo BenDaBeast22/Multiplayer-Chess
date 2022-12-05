@@ -33,11 +33,17 @@ img.capture {
 td.dark {
   background-color: rgb(102, 102, 236);
 }
+
 td.light {
   background-color: rgba(114, 168, 230, 0.728);
 }
+
 td.selected {
   box-shadow: inset 0px 0px 14px 200px rgba(78, 156, 52, 0.726);
+}
+
+td.lastMove {
+  box-shadow: inset 0px 0px 5px 5px rgba(166, 78, 188, 0.44);
 }
 
 td.legal {

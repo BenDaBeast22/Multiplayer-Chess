@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import "./GameState.css";
 import { Howl } from 'howler';
-const socket = require("./connections/socket").socket;
+const socket = require("../connections/socket").socket;
+const WHITE = true;
+const BLACK = false;
 
 class GameState extends Component {
   constructor (props) {
@@ -48,7 +50,7 @@ class GameState extends Component {
   }
   render() {
     const { rematchWaiting, rematchRequest } = this.state;
-    const { username, opponentUsername, score, message, opponentDisconnected, gameover, firstMove, videoCall } = this.props;
+    const { username, opponentUsername, score, message, opponentDisconnected, gameover, firstMove, videoCall, turn } = this.props;
     const scoreText = `${score[0]} - ${score[1]}`;
     let rematch = "Rematch";
     let rematchClass = "";
@@ -62,13 +64,13 @@ class GameState extends Component {
     }
     return (
       <div className="GameState">
-        <p className="username">{username}</p>
+        <p className="opponentUsername">{opponentUsername}</p>
         <div className='score'><strong>{scoreText}</strong></div>
         <div className='state'><em>{message}</em></div>
         <button className="resignButton" onClick={this.resign} disabled={!firstMove || gameover}>Resign</button>
         <button className={`rematchButton ${rematchClass}`} disabled={!firstMove || opponentDisconnected} onClick={this.rematch}>{rematch}</button>
         <button className="videoButton" onClick={this.toggleComm} disabled={opponentDisconnected}>{videoCall? "Chat": "Video Call"}</button>
-        <p className="opponentUsername">{opponentUsername}</p>
+        <p className="username">{username} {turn? "Yes" : ""}</p>
       </div>
     );
   }

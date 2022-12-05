@@ -6,15 +6,10 @@ import { arrayEquals, setupBoard } from './Helpers';
 import { Howl } from 'howler';
 import { json, useParams } from 'react-router-dom';
 import ChessGame from './ChessGame';
-const socket = require("./connections/socket").socket;
+const socket = require("../connections/socket").socket;
 
 const BLACK = false
 const WHITE = true
-
-const soundEffects = {
-  whiteMove: "./whiteMove.wav",
-  blackMove: "./blackMove.wav"
-}
 
 let Game = new ChessGame();
 console.log("Game Socket = ", socket);
@@ -27,9 +22,9 @@ class Board extends React.Component {
   }
   constructor(props) {
     super(props);
-    // console.log("props = ", props);
     this.state = {
       board: setupBoard(),
+      lastMove: false,
       lastSelectedPiecePos: false,
       turn: WHITE,
       legalMoves: [],
@@ -52,14 +47,14 @@ class Board extends React.Component {
   componentDidMount() {
     socket.on("opponent move", opponentMove => {
       const { board } = this.state;
-      const { moveInfo, state } = opponentMove;
+      const { state, moveInfo } = opponentMove;
       const { checkmate, draw } = state;
       const newBoard = board;
       if (moveInfo["promotePos"]) {
         const {promotePos, promotePiece} = moveInfo;
         const [pr, pc] = promotePos;
         board[pr][pc] = promotePiece;
-      } else {
+      } else { 
         const {lastSelectedPiecePos, selectedPiecePos} = moveInfo;
         const [r, c] = lastSelectedPiecePos;
         const [x, y] = selectedPiecePos;
@@ -123,12 +118,14 @@ class Board extends React.Component {
       this.setState(resignState, () => this.handleUpdateGameState());
       this.playSound("/soundEffects/lose.mp3");
     });
+
     socket.on("reset game", () => {
       console.log("Reset Game");
       Game = new ChessGame();
       this.setState({
         board: setupBoard(), 
         lastSelectedPiecePos: false, 
+        lastMove: false,
         turn: WHITE, 
         legalMoves: [], 
         kingPos: [[0, 4], [7, 4]], 
@@ -178,7 +175,7 @@ class Board extends React.Component {
     else {
       const promoteState = {
         board: newBoard, 
-        lastSelectedPiecePos: false, 
+        lastSelectedPiecePos: false,  
         legalMoves: [], 
         inCheck: inCheck, 
         promotePawn: false  
@@ -207,75 +204,59 @@ class Board extends React.Component {
       const [or, oc] = lastSelectedPiecePos;
       const lastSelectedPiece = board[or][oc];
       const retBoard = Game.move(board, lastSelectedPiecePos, selectedPiecePos, lastSelectedPiece, kingPos, inCheck, castleCheck, lastEnPassant, draw);
-      const move = {
-        lastSelectedPiecePos,
-        selectedPiecePos
-      }
-      if (retBoard.checkmate) {
-        const checkmateState = {
-          winner: lastSelectedPiece.type,
-          checkmate: true, 
-          inCheck: true,
+      if (retBoard.board) {
+        const move = {
+          lastSelectedPiecePos,
+          selectedPiecePos
+        }
+        let moveState = {
           legalMoves: [],
-          lastSelectedPiecePos: false, 
-          turn: !turn
+          lastSelectedPiecePos: false,
+          lastMove: move,
+          turn: !turn,
+        };
+        if (retBoard.checkmate) {
+          moveState.winner = lastSelectedPiece.type;
+          moveState.inCheck = true;
+          moveState.checkmate = true;
+          this.playSound("/soundEffects/win.mp3");
         }
-        this.setState(checkmateState, () => this.handleUpdateGameState());
-        this.playSound("/soundEffects/win.mp3");
-        socket.emit("new move", {state: checkmateState, moveInfo: move, gameRoomId: this.props.params.gameId});
-        return;
-      }
-      else if (retBoard.draw) {
-        const drawState = {
-          draw: true, 
-          legalMoves: [], 
-          lastSelectedPiecePos: false, 
-          turn: !turn
+        else if (retBoard.draw) {
+          moveState.draw = true;
+          this.playSound("/soundEffects/draw.mp3");
         }
-        this.setState(drawState, () => this.handleUpdateGameState());
-        this.playSound("/soundEffects/draw.mp3");
-        socket.emit("new move", {state: drawState, moveInfo: move, gameRoomId: this.props.params.gameId});
-        return;
-      }
-      else if (retBoard.board){
-        const moveState = {
-          board: retBoard.board, 
-          lastSelectedPiecePos: false, 
-          turn: !turn, 
-          legalMoves: [], 
-          kingPos: retBoard.kingPos, 
-          inCheck: retBoard.inCheck, 
-          checkmate: retBoard.checkmate, 
-          castleCheck: retBoard.castleCheck, 
-          lastEnPassant: retBoard.lastEnPassant,
-          promotePawn: retBoard.promotePawn,
-          capture: retBoard.capture
+        else if (retBoard.board){
+          moveState.kingPos = retBoard.kingPos;
+          moveState.inCheck = retBoard.inCheck;
+          moveState.castleCheck = retBoard.castleCheck;
+          moveState.lastEnPassant = retBoard.lastEnPassant;
+          moveState.promotePawn = retBoard.promotePawn;
+          moveState.capture = retBoard.capture;
+          if (retBoard.capture && retBoard.inCheck) {
+            this.playSound("/soundEffects/capture.mp3");
+            this.playSound("/soundEffects/check.mp3");
+          }
+          else if (retBoard.capture) {
+            this.playSound("/soundEffects/capture.mp3");
+          }
+          else if (retBoard.inCheck) {
+            this.playSound("/soundEffects/check.mp3");
+          }
+          else this.playSound("/soundEffects/move.mp3");
+          this.setState(st => ({
+            moveNumber: st.moveNumber + 1
+          }), 
+          () => {
+            if (this.state.moveNumber === 1) socket.emit("first move");
+          });
         }
-        this.setState(moveState);
-        // socket.emit("move", board);
-        if (retBoard.capture && retBoard.inCheck) {
-          this.playSound("/soundEffects/capture.mp3");
-          this.playSound("/soundEffects/check.mp3");
-        }
-        else if (retBoard.capture) {
-          this.playSound("/soundEffects/capture.mp3");
-        }
-        else if (retBoard.inCheck) {
-          this.playSound("/soundEffects/check.mp3");
-        }
-        else this.playSound("/soundEffects/move.mp3");
-        // if (turn === WHITE) {
-        //   this.playSound("/soundEffects/whiteMove.wav");
-        // }
-        // else this.playSound("/soundEffects/blackMove.wav");
-        // Let opponent know that move was made
-        socket.emit("new move", {state: moveState, moveInfo: move, gameRoomId: this.props.params.gameId});
-        this.setState(st => ({
-          moveNumber: st.moveNumber + 1
-        }), 
-        () => {
-          if (this.state.moveNumber === 1) socket.emit("first move");
+        // Update the game state when game is over
+        this.setState(moveState, () => {
+          if (retBoard.checkmate || retBoard.draw) {
+            this.handleUpdateGameState();
+          }
         });
+        socket.emit("new move", {state: moveState, moveInfo: move});
       } else {
         this.playSound("/soundEffects/error.mp3");
       }
@@ -296,11 +277,6 @@ class Board extends React.Component {
   playSound (src) {
     const sound = new Howl({src, volume: 0.2});
     sound.play();
-  }
-  playTwoSounds (src, secondSrc) {
-    const secondSound = new Howl({src: secondSrc});
-    const sound = new Howl({src, onend: () => secondSound.play()});
-    sound.play()
   }
   selectorSquares (pawnPromote) {
     let arr = [];
@@ -350,7 +326,7 @@ class Board extends React.Component {
     this.props.updateGameState(gameState);
   }
   render() {
-    const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn, resigned} = this.state;
+    const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn, resigned, lastMove} = this.state;
     let winMessage = <div>{winner? "White Wins!!!" : "Black Wins!!!"}</div>
     let chessBoard = [];
     let cOdd = true;
@@ -387,6 +363,7 @@ class Board extends React.Component {
         const piece = board[r][c];
         const pos = [r, c];
         const isSelected = arrayEquals(pos, lastSelectedPiecePos);
+        const isLastMove = arrayEquals(pos, lastMove.lastSelectedPiecePos) || arrayEquals(pos, lastMove.selectedPiecePos);
         const isLegalMove = legalMoves.some(lm => arrayEquals(lm, pos)? true : false);
         const isDraw = draw && piece instanceof King && (turn === piece.type);
         const kingInCheck = piece instanceof King && inCheck && (turn === piece.type);
@@ -395,7 +372,7 @@ class Board extends React.Component {
           [pr, pc] = promotePawn;
           selectorSquare = this.selectorSquare(promotePawn, selectorSquares, pos); 
         }
-        row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove} selectorSquare={selectorSquare} selectPromote={this.selectPromote} promotePos={promotePawn} turn={turn}/>)
+        row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLastMove={isLastMove} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove} selectorSquare={selectorSquare} selectPromote={this.selectPromote} promotePos={promotePawn} turn={turn}/>)
         cOdd = !cOdd;
       }
       chessBoard.push(<tr className="Row" key={r + 1}>{row}</tr>)   
