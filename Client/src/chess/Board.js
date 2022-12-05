@@ -1,10 +1,9 @@
 import './Board.css'
 import React from 'react'
 import Square from './Square';
-import { Piece, King, Queen, Knight, Bishop, Rook, Pawn } from './Pieces';
+import { Piece, King, Queen, Knight, Bishop, Rook } from './Pieces';
 import { arrayEquals, setupBoard } from './ChessHelpers';
-import { json, useParams } from 'react-router-dom';
-import { Howl, Howler } from 'howler';
+import { useParams } from 'react-router-dom';
 import ChessGame from './ChessGame';
 import { playSound } from '../helpers/helpers';
 import { socket } from '../connections/socket';
@@ -323,14 +322,12 @@ class Board extends React.Component {
     this.props.updateGameState(gameState);
   }
   render() {
-    const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, winner, promotePawn, resigned, lastMove} = this.state;
-    let winMessage = <div>{winner? "White Wins!!!" : "Black Wins!!!"}</div>
+    const {board, lastSelectedPiecePos, turn, legalMoves, inCheck, checkmate, draw, promotePawn, lastMove} = this.state;
     let chessBoard = [];
     let cOdd = true;
     let rOdd = false;
     let selectorSquares;
     let selectorSquare;
-    let pr, pc;
     if (promotePawn) {
       selectorSquares = this.selectorSquares(promotePawn);
       console.log(selectorSquares);
@@ -366,7 +363,6 @@ class Board extends React.Component {
         const kingInCheck = piece instanceof King && inCheck && (turn === piece.type);
         selectorSquare = false;
         if (promotePawn) {
-          [pr, pc] = promotePawn;
           selectorSquare = this.selectorSquare(promotePawn, selectorSquares, pos); 
         }
         row.push(<Square key={sqr} pos={pos} isDark={isDark} piece={piece} selectPiece={() => this.selectPiece([r,c])} isSelected={isSelected} isLastMove={isLastMove} isLegal={isLegalMove} inCheck={kingInCheck} isCheckmate={checkmate} draw={isDraw} dropMove={this.dropMove} selectorSquare={selectorSquare} selectPromote={this.selectPromote} promotePos={promotePawn} turn={turn}/>)

@@ -52,7 +52,7 @@ class Square extends React.Component {
     selectPromote(promotePos, selectorSquare);
   }
   render(){
-    const {piece, isLegal, selectorSquare, turn, isLastMove} = this.props;
+    const {piece, isLegal, selectorSquare, isLastMove} = this.props;
     const {dragOver} = this.state;
     const classes = "square" + (this.props.isDark ? " dark" : " light") + (this.props.isSelected ? " selected": "") + (isLastMove ? " lastMove" : "") + (this.props.inCheck ? " inCheck": "") + (this.props.draw ? " draw" : "");
     const pieceClasses = "piece" + (isLegal? " capture": "");
