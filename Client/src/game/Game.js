@@ -2,10 +2,10 @@ import Board from '../chess/Board';
 import Chat from '../social/Chat';
 import VideoCall from '../social/VideoCall';
 import { Component } from 'react';
-import "./Game.css";
 import GameState from '../gamestate/GameState';
-import { Howl } from 'howler';
+import { playSound } from '../helpers/helpers';
 import { socket } from '../connections/socket';
+import "./Game.css";
 
 const WHITE = true;
 const BLACK = false;
@@ -21,7 +21,7 @@ class Game extends Component {
     this.switchTurn = this.switchTurn.bind(this);
   }
   componentDidMount () {
-    this.playSound("/soundEffects/win.mp3");
+    playSound("win.mp3");
     socket.on("reset game", () => {
       this.setState({gameEnd: false, firstMove: false})
     });
@@ -40,10 +40,6 @@ class Game extends Component {
   }
   switchTurn() {
     this.setState(st => !st.turn);
-  }
-  playSound (src) {
-    const sound = new Howl({src, volume: 0.2});
-    sound.play();
   }
   resign () {
     this.setState({resigned: true});

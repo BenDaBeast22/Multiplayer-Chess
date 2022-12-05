@@ -1,4 +1,4 @@
-import {arrayEquals} from './Helpers';
+import { arrayEquals } from './ChessHelpers';
 const BLACK = false;
 const WHITE = true;
 

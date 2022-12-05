@@ -1,4 +1,4 @@
-import { arrayEquals } from './Helpers';
+import { arrayEquals } from './ChessHelpers';
 import { King, Rook, Pawn, Piece } from './Pieces';
 
 const BLACK = false;

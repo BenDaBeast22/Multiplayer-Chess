@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { useParams } from 'react-router-dom';
-import { Howl, Howler } from 'howler';
+import { playSound } from '../helpers/helpers';
+import { socket } from '../connections/socket';
 import "./Chat.css";
-const socket = require("../connections/socket").socket;
 
 class Chat extends Component {
   constructor(props) {
@@ -19,12 +19,8 @@ class Chat extends Component {
       this.setState((st) => ({
         chat: [...st.chat, msg]
       }));
-      this.playSound("/soundEffects/notify.mp3");
+      playSound("notify.mp3");
     });
-  }
-  playSound(src) {
-    const sound = new Howl({src, volume: 0.2});
-    sound.play();
   }
   handleMessageChange(evt) {
     this.setState({message: evt.target.value})

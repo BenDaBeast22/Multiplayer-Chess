@@ -2,11 +2,12 @@ import './Board.css'
 import React from 'react'
 import Square from './Square';
 import { Piece, King, Queen, Knight, Bishop, Rook, Pawn } from './Pieces';
-import { arrayEquals, setupBoard } from './Helpers';
-import { Howl } from 'howler';
+import { arrayEquals, setupBoard } from './ChessHelpers';
 import { json, useParams } from 'react-router-dom';
+import { Howl, Howler } from 'howler';
 import ChessGame from './ChessGame';
-const socket = require("../connections/socket").socket;
+import { playSound } from '../helpers/helpers';
+import { socket } from '../connections/socket';
 
 const BLACK = false
 const WHITE = true
@@ -81,18 +82,18 @@ class Board extends React.Component {
       state.board = newBoard;
       state.winner = !state.winner;
       if (state.checkmate) {
-        this.playSound("/soundEffects/lose.mp3");
+        playSound("lose.mp3");
       } else if (state.draw) {
-        this.playSound("/soundEffects/draw.mp3");
+        playSound("draw.mp3");
       } else if (state.capture && state.check) {
-        this.playSound("/soundEffects/capture.mp3");
-        this.playSound("/soundEffects/check.mp3");
+        playSound("capture.mp3");
+        playSound("check.mp3");
       } else if (state.capture) {
-        this.playSound("/soundEffects/capture.mp3");
+        playSound("capture.mp3");
       } else if (state.inCheck) {
-        this.playSound("/soundEffects/check.mp3");
+        playSound("check.mp3");
       } else {
-        this.playSound("/soundEffects/move.mp3");
+        playSound("move.mp3");
       }
       this.setState(state, () => {
         if (checkmate || draw) {
@@ -116,7 +117,7 @@ class Board extends React.Component {
         disconnect: disconnect
       }
       this.setState(resignState, () => this.handleUpdateGameState());
-      this.playSound("/soundEffects/lose.mp3");
+      playSound("lose.mp3");
     });
 
     socket.on("reset game", () => {
@@ -139,7 +140,7 @@ class Board extends React.Component {
         resign: false,
         moveNumber: 0
       }, () => this.handleUpdateGameState());
-      this.playSound("/soundEffects/win.mp3");
+      playSound("win.mp3");
     });
   }
 
@@ -219,11 +220,11 @@ class Board extends React.Component {
           moveState.winner = lastSelectedPiece.type;
           moveState.inCheck = true;
           moveState.checkmate = true;
-          this.playSound("/soundEffects/win.mp3");
+          playSound("win.mp3");
         }
         else if (retBoard.draw) {
           moveState.draw = true;
-          this.playSound("/soundEffects/draw.mp3");
+          playSound("draw.mp3");
         }
         else if (retBoard.board){
           moveState.kingPos = retBoard.kingPos;
@@ -233,16 +234,16 @@ class Board extends React.Component {
           moveState.promotePawn = retBoard.promotePawn;
           moveState.capture = retBoard.capture;
           if (retBoard.capture && retBoard.inCheck) {
-            this.playSound("/soundEffects/capture.mp3");
-            this.playSound("/soundEffects/check.mp3");
+            playSound("capture.mp3");
+            playSound("check.mp3");
           }
           else if (retBoard.capture) {
-            this.playSound("/soundEffects/capture.mp3");
+            playSound("capture.mp3");
           }
           else if (retBoard.inCheck) {
-            this.playSound("/soundEffects/check.mp3");
+            playSound("check.mp3");
           }
-          else this.playSound("/soundEffects/move.mp3");
+          else playSound("move.mp3");
           this.setState(st => ({
             moveNumber: st.moveNumber + 1
           }), 
@@ -258,7 +259,7 @@ class Board extends React.Component {
         });
         socket.emit("new move", {state: moveState, moveInfo: move});
       } else {
-        this.playSound("/soundEffects/error.mp3");
+        playSound("error.mp3");
       }
       return;
     }
@@ -273,10 +274,6 @@ class Board extends React.Component {
   }
   dropMove (movedSqr) {
     this.selectPiece(movedSqr);
-  }
-  playSound (src) {
-    const sound = new Howl({src, volume: 0.2});
-    sound.play();
   }
   selectorSquares (pawnPromote) {
     let arr = [];

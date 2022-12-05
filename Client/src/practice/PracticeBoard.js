@@ -2,7 +2,7 @@ import './PracticeBoard.css'
 import React from 'react'
 import Square from '../chess/Square';
 import { Piece, King, Queen, Knight, Bishop, Rook } from '../chess/Pieces';
-import { arrayEquals, setupBoard } from '../chess/Helpers';
+import { arrayEquals, setupBoard } from '../chess/ChessHelpers';
 import { Howl, Howler } from 'howler';
 import { Link } from "react-router-dom";
 import ChessGame from '../chess/ChessGame';

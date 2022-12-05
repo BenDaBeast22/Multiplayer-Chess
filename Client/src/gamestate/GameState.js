@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import "./GameState.css";
 import { Howl } from 'howler';
-const socket = require("../connections/socket").socket;
+import { socket } from '../connections/socket';
+import "./GameState.css";
+
 const WHITE = true;
 const BLACK = false;
 
@@ -68,7 +69,7 @@ class GameState extends Component {
         <div className='score'><strong>{scoreText}</strong></div>
         <div className='state'><em>{message}</em></div>
         <button className="resignButton" onClick={this.resign} disabled={!firstMove || gameover}>Resign</button>
-        <button className={`rematchButton ${rematchClass}`} disabled={!firstMove || opponentDisconnected} onClick={this.rematch}>{rematch}</button>
+        <button className={`rematchButton ${rematchClass}`} disabled={!gameover || opponentDisconnected} onClick={this.rematch}>{rematch}</button>
         <button className="videoButton" onClick={this.toggleComm} disabled={opponentDisconnected}>{videoCall? "Chat": "Video Call"}</button>
         <p className="username">{username} {turn? "Yes" : ""}</p>
       </div>

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Peer from "simple-peer";
-import { Howl } from 'howler';
+import { playSound } from '../helpers/helpers';
+import { socket } from '../connections/socket';
 import "./VideoCall.css";
-const socket = require("../connections/socket").socket;
 
 const VideoCall = (props) => {
   const { username, opponentUsername } = props;
@@ -30,7 +30,7 @@ const VideoCall = (props) => {
     socket.on("callOpponent", signal => {
       console.log("Opponent Called");
       setReceivingCall(true);
-      playSound("/soundEffects/videoCall.mp3");
+      playSound("videoCall.mp3");
       setCallerSignal(signal);
     });
 
@@ -68,7 +68,7 @@ const VideoCall = (props) => {
       peer.signal(signal);
       connectionRef.current = peer;
       console.log("call accepted");
-      playSound("/soundEffects/joinCall.mp3");
+      playSound("joinCall.mp3");
     });  
   }
 
@@ -93,7 +93,7 @@ const VideoCall = (props) => {
 
     peer.signal(callerSignal);
     connectionRef.current = peer;
-    playSound("/soundEffects/join.mp3");
+    playSound("join.mp3");
   }
 
   const rejectCall = () => socket.emit("endCall");
@@ -102,11 +102,6 @@ const VideoCall = (props) => {
     setCallEnded(true);
     socket.emit("endCall");
     connectionRef.current.destroy();
-  }
-
-  const playSound = (src) => {
-    const sound = new Howl({src, volume: 0.2});
-    sound.play();
   }
 
   let faceCam = 

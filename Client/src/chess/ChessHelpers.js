@@ -1,4 +1,4 @@
-import {Piece, Pawn, Bishop, Knight, Rook, Queen, King} from './Pieces';
+import { Piece, Pawn, Bishop, Knight, Rook, Queen, King } from './Pieces';
 const BLACK = false;
 const WHITE = true;
 
