@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "/",
+    "public": "/Client/build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
