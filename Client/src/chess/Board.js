@@ -160,7 +160,6 @@ class Board extends React.Component {
     const kOppIdx = kIdx? 0: 1;
     const newBoard = this.state.board;
     newBoard[pr][pc] = newPiece;
-    console.log("color", turn === WHITE? "White": "Black");
     // Check if opponent in check
     const inCheck = Game.checkedOpponent(newBoard, newPiece.type, kingPos[kOppIdx]);
     // Check for checkmate

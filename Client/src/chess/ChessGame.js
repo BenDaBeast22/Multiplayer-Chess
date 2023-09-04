@@ -51,19 +51,23 @@ class ChessGame {
           if (oppStartPos instanceof King) lMoves = oppStartPos.allowedMoves(board, [r, c], board[r][c], kingOppPos);
           else lMoves = oppStartPos.legalMoves(board, [r, c], board[r][c]);
           for (let move of lMoves) {
+            // Make move with opponent piece
             const [x, y] = move;
             let originalPos = board[r][c];
             let moveSquare = board[x][y]; 
             board[r][c] = "-";
             board[x][y] = oppStartPos;
             if (oppStartPos instanceof King) kingOppPos = [x, y];
+            // If king is not under attack then no checkmate occured
             const squaresCovered = this.squaresCovered(board, piece.type);
             if (!squaresCovered.some(s => arrayEquals(s, kingOppPos))) {
-              board[r][c] = originalPos;
+              // Take opponent move back
               board[x][y] = moveSquare;
+              board[r][c] = originalPos;
               if (oppStartPos instanceof King) kingOppPos = kingOppStartPos;
               return false;
             }
+            // Take opponent move back and try another move to get out of check
             board[x][y] = moveSquare;
             board[r][c] = originalPos;
           }
@@ -91,29 +95,7 @@ class ChessGame {
     board[x][y] = endPiece;
     board[a][b] = piece;
     return false;
-  } 
-  // Update kingPos and move rook onto the correct square
-  // completeCastle(board, piece, startPos, endPos, kingPos, kIdx, putInCheck) {
-  //   const startCol = startPos[1];
-  //   const endCol = endPos[1];
-  //   const kColDiff = endCol - startCol;
-  //   const rIdx = piece.type? 0: 7;
-  //   // Right Castles
-  //   if (!putInCheck && kColDiff === 2) {
-  //     board[rIdx][5] = board[rIdx][7];
-  //     board[rIdx][7] = "-";
-  //   }
-  //   // Left Castles
-  //   else if(!putInCheck && (kColDiff === -2 || kColDiff === -3)) {
-  //     board[rIdx][3] = board[rIdx][0];
-  //     board[rIdx][0] = "-";
-  //   } 
-  //   // Move King without castling
-  //   else {
-  //     kingPos[kIdx] = endPos;
-  //     castleCheck[cIdx][1] = false;
-  //   }
-  // }
+  }
   draw (board, piece, kingOppPos, castleCheck, lastEnPassant) {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
@@ -139,7 +121,6 @@ class ChessGame {
     const kIdx = piece.type? 0 : 1;
     const kOppIdx = kIdx? 0: 1;
     const cIdx = piece.type? 0 : 1;
-    // return [board, kingPos, inCheck, checkmate, castleCheck, lastEnPassant, draw]
     const retBoard = {
       board: board,
       lastSelectedPiecePos: false,

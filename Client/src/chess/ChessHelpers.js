@@ -40,7 +40,7 @@ function setupBoard() {
   board[7][6] = new Knight(BLACK, "b_kn");
   board[7][7] = new Rook(BLACK, "b_r");
   // Display Pawns
-  for(let c = 0; c < 8; c++){
+  for (let c = 0; c < 8; c++){
     board[1][c] = new Pawn(WHITE, "w_p", [1, c]);
     board[6][c] = new Pawn(BLACK, "b_p", [6, c]);
   }
